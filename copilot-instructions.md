@@ -1,40 +1,107 @@
-# Copilot Instructions — cms-management
+# Copilot Instructions — cms-management (Clean Architecture + REST)
 
-You are building a E-comerce product. Always work in **one vertical slice per PR**.
+You are building an e-commerce website with a CMS module and an internal admin portal.
+Work in **vertical slices**: **1 GitHub Issue = 1 PR**.
 
-## Guardrails
-- 1 Issue = 1 PR. Never implement multiple features in one PR.
-- Do not invent business rules. Follow the Issue acceptance criteria.
-- Always add tests for new behavior.
-- Keep changes scoped; avoid large refactors.
+## 0) Absolute rules
+- Implement exactly what the Issue asks—no extra features.
+- Keep PR small, focused, and mergeable.
+- Do not refactor unrelated code.
+- Always add tests for new behavior (unit + integration where applicable).
+- Never commit secrets; never log tokens/PII/payment refs.
 
-## Architecture
-### Backend (.NET)
-- Minimal API + Vertical Slice:
-  - `src/Api/Features/<Area>/<Action>/Endpoint.cs`
-  - Request/Response DTOs in the same folder
-  - Validation (FluentValidation if included; otherwise manual)
-  - Handler/service in-slice (or use Application layer if it exists)
+## 1) Architecture (must follow)
+Projects:
+- `src/Api` — ASP.NET Core Web API (REST controllers, middleware, Swagger)
+- `src/Application` — Use cases (Commands/Queries), validators, interfaces (ports)
+- `src/Domain` — Entities, value objects, domain rules/enums
+- `src/Infrastructure` — EF Core DbContext, migrations, external adapters (Payoo/Shipping/FCM/Email/Invoice)
 
-### Persistence
-- EF Core DbContext in `src/Persistence`
-- Migrations stored alongside Persistence project
-- Prefer explicit indexes for frequently queried columns (only if justified)
+Dependency boundaries:
+- Api -> Application -> Domain
+- Infrastructure -> Application + Domain
+- Domain references nothing else.
+- Controllers must stay thin: no business logic, no EF Core queries.
 
-### Auth & Security
-- Default: secure-by-default.
-- Admin endpoints require Admin role/policy.
-- Never log tokens, passwords, or PII.
-- Return appropriate status codes; do not leak internal exception details.
+## 2) REST conventions
+- Use plural resources: `/products`, `/categories`, `/orders`, `/cart/items`.
+- Buyer account scope: `/me/...`
+- Admin scope: `/admin/...`
+- Search: `/search/suggest`
+- Use correct status codes: 200/201/204, 400, 401, 403, 404, 409.
+- Errors: return `ProblemDetails` consistently (no stack traces).
 
-## Quality gates
-Before finalizing PR:
+## 3) “Controller thin” rule
+Controllers should:
+- validate route/query binding only (basic)
+- call ONE Application use-case
+- map use-case result -> HTTP response
+- not contain domain rules, totals calculation, payment logic, or DB queries
+
+## 4) Use-case naming & folder structure
+Each slice goes under `src/Application/Features/<Area>/<Action>/`.
+
+Naming:
+- Commands: `CreateOrderCommand`, `ApplyVoucherCommand`, `RegisterDeviceCommand`
+- Queries: `GetProductBySlugQuery`, `ListProductsQuery`
+- Handlers: `CreateOrderHandler`, etc.
+- Validators: `CreateOrderValidator`, etc.
+- Results: `CreateOrderResult` (optional) or return DTOs
+
+API Controllers:
+- `ProductsController`, `CategoriesController`, `CartController`, `OrdersController`
+- Admin: `AdminProductsController`, `AdminShippingController`, etc.
+
+## 5) Invariants that MUST be enforced + tested
+Payoo payment:
+- For online Payoo payments: **NO order is created until payment success is verified**.
+- Payment callback must be **idempotent**.
+
+Vouchers:
+- Max 1 discount voucher + max 1 shipping voucher.
+- Shipping promo cannot exceed shipping fee.
+
+Address book:
+- Max 5 addresses per buyer.
+
+Orders:
+- Buyer can cancel only when status is `Processing`.
+- Confirm received; auto-confirm after `[n]` hours (configurable).
+
+Logging:
+- Always include `X-Correlation-Id`.
+- Redact/mask email/phone, tokens, payment refs.
+
+## 6) External integrations pattern (ports/adapters)
+Application defines interfaces:
+- `IPaymentGateway` (Payoo)
+- `IShippingQuoteProvider`
+- `IInvoiceIssuer`
+- `INotificationSender` (FCM)
+- `IEmailSender`
+
+Infrastructure implements them.
+MVP: stubs are acceptable, must be deterministic and testable.
+
+## 7) Quality gates before PR is ready
+Backend:
+- `dotnet restore`
 - `dotnet build -c Release`
 - `dotnet test -c Release`
-- Ensure CI is green
+- `dotnet format` (if configured)
 
-## PR description must include
+Frontend (if present):
+- `npm ci`
+- `npm run lint`
+- `npm run build`
+- `npm test`
+- `npm run e2e` (Playwright)
+
+## 8) PR output expectations
+PR description MUST include:
 - Summary
+- Closes issue #
 - How to test
-- API contract changes (if any)
-- Assumptions / open questions
+- API changes
+- Security notes (authz, redaction)
+- Any assumptions/open questions

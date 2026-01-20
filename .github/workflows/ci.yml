@@ -1,0 +1,127 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [ main ]
+
+jobs:
+  backend:
+    name: Backend (.NET)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "8.0.x"
+
+      - name: Restore
+        run: dotnet restore src/Cms.sln
+
+      - name: Build (Release)
+        run: dotnet build src/Cms.sln -c Release --no-restore
+
+      - name: Test (Release)
+        run: dotnet test src/Cms.sln -c Release --no-build --verbosity normal
+
+  frontend:
+    name: Frontend (React/Next.js)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/web
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+          cache-dependency-path: apps/web/package-lock.json
+
+      - name: Install
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint --if-present
+
+      - name: Unit tests
+        run: npm test --if-present
+
+      - name: Build
+        run: npm run build
+
+  e2e:
+    name: E2E (Playwright)
+    runs-on: ubuntu-latest
+    needs: [backend, frontend]
+    defaults:
+      run:
+        working-directory: apps/web
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+          cache-dependency-path: apps/web/package-lock.json
+
+      - name: Install
+        run: npm ci
+
+      - name: Install Playwright Browsers
+        run: npx playwright install --with-deps
+
+      # Optional: start API + Web for E2E (depends on how you implement e2e)
+      # If your E2E uses mocked API, you can remove the start steps.
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "8.0.x"
+
+      - name: Restore API
+        run: dotnet restore ../../src/Cms.sln
+
+      - name: Build API
+        run: dotnet build ../../src/Cms.sln -c Release --no-restore
+
+      - name: Start API (background)
+        run: |
+          dotnet run --project ../../src/Api --urls http://127.0.0.1:5001 > api.log 2>&1 &
+          echo $! > api.pid
+          sleep 3
+
+      - name: Start Web (background)
+        run: |
+          npm run start --if-present > web.log 2>&1 &
+          echo $! > web.pid
+          sleep 3
+
+      - name: Run E2E
+        env:
+          BASE_URL: "http://127.0.0.1:3000"
+          API_BASE_URL: "http://127.0.0.1:5001"
+        run: npm run e2e
+
+      - name: Upload logs (on failure)
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: e2e-logs
+          path: |
+            apps/web/api.log
+            apps/web/web.log
+            apps/web/playwright-report
+            apps/web/test-results
+
+      - name: Stop background processes
+        if: always()
+        run: |
+          if [ -f api.pid ]; then kill $(cat api.pid) || true; fi
+          if [ -f web.pid ]; then kill $(cat web.pid) || true; fi
