@@ -1,0 +1,14 @@
+/Users/dungvt/Projects/cms-management/src/Domain/bin/Release/net9.0/Domain.deps.json
+/Users/dungvt/Projects/cms-management/src/Domain/bin/Release/net9.0/Domain.dll
+/Users/dungvt/Projects/cms-management/src/Domain/bin/Release/net9.0/Domain.pdb
+/Users/dungvt/Projects/cms-management/src/Domain/bin/Release/net9.0/Domain.xml
+/Users/dungvt/Projects/cms-management/src/Domain/obj/Release/net9.0/Domain.GeneratedMSBuildEditorConfig.editorconfig
+/Users/dungvt/Projects/cms-management/src/Domain/obj/Release/net9.0/Domain.AssemblyInfoInputs.cache
+/Users/dungvt/Projects/cms-management/src/Domain/obj/Release/net9.0/Domain.AssemblyInfo.cs
+/Users/dungvt/Projects/cms-management/src/Domain/obj/Release/net9.0/Domain.csproj.CoreCompileInputs.cache
+/Users/dungvt/Projects/cms-management/src/Domain/obj/Release/net9.0/Domain.sourcelink.json
+/Users/dungvt/Projects/cms-management/src/Domain/obj/Release/net9.0/Domain.dll
+/Users/dungvt/Projects/cms-management/src/Domain/obj/Release/net9.0/refint/Domain.dll
+/Users/dungvt/Projects/cms-management/src/Domain/obj/Release/net9.0/Domain.xml
+/Users/dungvt/Projects/cms-management/src/Domain/obj/Release/net9.0/Domain.pdb
+/Users/dungvt/Projects/cms-management/src/Domain/obj/Release/net9.0/ref/Domain.dll
