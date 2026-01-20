@@ -1,0 +1,18 @@
+{
+  "$schema": "https://raw.githubusercontent.com/DotNetAnalyzers/StyleCopAnalyzers/master/StyleCop.Analyzers/StyleCop.Analyzers/Settings/stylecop.schema.json",
+  "settings": {
+    "documentationRules": {
+      "companyName": "CMS Management",
+      "copyrightText": "Copyright (c) {companyName}. All rights reserved.",
+      "xmlHeader": false,
+      "fileNamingConvention": "stylecop"
+    },
+    "namingRules": {
+      "allowCommonHungarianPrefixes": true,
+      "allowedHungarianPrefixes": []
+    },
+    "orderingRules": {
+      "usingDirectivesPlacement": "outsideNamespace"
+    }
+  }
+}

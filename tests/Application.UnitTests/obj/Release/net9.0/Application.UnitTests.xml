@@ -1,0 +1,37 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Application.UnitTests</name>
+    </assembly>
+    <members>
+        <member name="T:Application.UnitTests.Health.HealthHandlerTests">
+            <summary>
+            Unit tests for HealthHandler.
+            </summary>
+        </member>
+        <member name="M:Application.UnitTests.Health.HealthHandlerTests.GetHealth_ReturnsOkStatus">
+            <summary>
+            Tests that GetHealth returns a response with "ok" status.
+            </summary>
+        </member>
+        <member name="M:Application.UnitTests.Health.HealthHandlerTests.GetHealth_UsesProvidedDateTime">
+            <summary>
+            Tests that GetHealth uses the provided IDateTime implementation.
+            </summary>
+        </member>
+        <member name="T:Application.UnitTests.Health.HealthHandlerTests.FakeDateTimeProvider">
+            <summary>
+            Fake implementation of IDateTime for testing.
+            </summary>
+        </member>
+        <member name="M:Application.UnitTests.Health.HealthHandlerTests.FakeDateTimeProvider.#ctor(System.DateTime)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Application.UnitTests.Health.HealthHandlerTests.FakeDateTimeProvider"/> class.
+            </summary>
+            <param name="utcNow">The fixed UTC time to return.</param>
+        </member>
+        <member name="P:Application.UnitTests.Health.HealthHandlerTests.FakeDateTimeProvider.UtcNow">
+            <inheritdoc />
+        </member>
+    </members>
+</doc>

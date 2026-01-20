@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Infrastructure</name>
+    </assembly>
+    <members>
+        <member name="T:Infrastructure.DependencyInjection">
+            <summary>
+            Provides dependency injection configuration for Infrastructure services.
+            </summary>
+        </member>
+        <member name="M:Infrastructure.DependencyInjection.AddInfrastructure(Microsoft.Extensions.DependencyInjection.IServiceCollection)">
+            <summary>
+            Registers Infrastructure services into the DI container.
+            </summary>
+            <param name="services">The service collection.</param>
+            <returns>The service collection for chaining.</returns>
+        </member>
+        <member name="T:Infrastructure.Services.SystemClock">
+            <summary>
+            System implementation of IDateTime using the system clock.
+            </summary>
+        </member>
+        <member name="P:Infrastructure.Services.SystemClock.UtcNow">
+            <inheritdoc />
+        </member>
+    </members>
+</doc>

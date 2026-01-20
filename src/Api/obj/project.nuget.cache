@@ -1,0 +1,15 @@
+{
+  "version": 2,
+  "dgSpecHash": "SqWRqlmGOjU=",
+  "success": true,
+  "projectFilePath": "/Users/dungvt/Projects/cms-management/src/Api/Api.csproj",
+  "expectedPackageFiles": [
+    "/Users/dungvt/.nuget/packages/microsoft.aspnetcore.openapi/9.0.7/microsoft.aspnetcore.openapi.9.0.7.nupkg.sha512",
+    "/Users/dungvt/.nuget/packages/microsoft.codeanalysis.netanalyzers/9.0.0/microsoft.codeanalysis.netanalyzers.9.0.0.nupkg.sha512",
+    "/Users/dungvt/.nuget/packages/microsoft.extensions.dependencyinjection.abstractions/10.0.2/microsoft.extensions.dependencyinjection.abstractions.10.0.2.nupkg.sha512",
+    "/Users/dungvt/.nuget/packages/microsoft.openapi/1.6.17/microsoft.openapi.1.6.17.nupkg.sha512",
+    "/Users/dungvt/.nuget/packages/stylecop.analyzers/1.2.0-beta.556/stylecop.analyzers.1.2.0-beta.556.nupkg.sha512",
+    "/Users/dungvt/.nuget/packages/stylecop.analyzers.unstable/1.2.0.556/stylecop.analyzers.unstable.1.2.0.556.nupkg.sha512"
+  ],
+  "logs": []
+}
