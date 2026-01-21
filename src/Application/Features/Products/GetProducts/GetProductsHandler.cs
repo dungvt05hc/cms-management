@@ -54,6 +54,11 @@ public class GetProductsHandler
                 p.Slug.ToLower().Contains(searchTerm));
         }
 
+        if (query.Featured.HasValue)
+        {
+            productsQuery = productsQuery.Where(p => p.IsFeatured == query.Featured.Value);
+        }
+
         var totalCount = await productsQuery.CountAsync(cancellationToken);
 
         var page = query.Page < 1 ? 1 : query.Page;
@@ -76,6 +81,7 @@ public class GetProductsHandler
             p.Videos,
             p.Specifications,
             p.IsActive,
+            p.IsFeatured,
             p.Variants.Select(v => new ProductVariantDto(v.Id, v.Sku, v.VariantName, v.Price, v.StockQuantity)).ToList(),
             p.CreatedAt,
             p.UpdatedAt)).ToList();

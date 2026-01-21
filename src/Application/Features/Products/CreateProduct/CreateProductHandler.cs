@@ -88,6 +88,7 @@ public class CreateProductHandler
             Videos = command.Videos,
             Specifications = command.Specifications,
             IsActive = command.IsActive,
+            IsFeatured = command.IsFeatured,
             CreatedAt = now,
             UpdatedAt = now,
         };
@@ -123,6 +124,7 @@ public class CreateProductHandler
             product.Videos,
             product.Specifications,
             product.IsActive,
+            product.IsFeatured,
             product.Variants.Select(v => new ProductVariantDto(v.Id, v.Sku, v.VariantName, v.Price, v.StockQuantity)).ToList(),
             product.CreatedAt,
             product.UpdatedAt);

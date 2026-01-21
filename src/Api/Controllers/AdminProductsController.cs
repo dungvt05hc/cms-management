@@ -101,6 +101,7 @@ public class AdminProductsController : ControllerBase
     /// </summary>
     /// <param name="categoryId">Filter by category.</param>
     /// <param name="q">Search term.</param>
+    /// <param name="featured">Filter by featured.</param>
     /// <param name="page">Page number.</param>
     /// <param name="pageSize">Page size.</param>
     /// <param name="cancellationToken">Cancellation token.</param>
@@ -112,11 +113,12 @@ public class AdminProductsController : ControllerBase
     public async Task<IActionResult> GetProducts(
         [FromQuery] Guid? categoryId,
         [FromQuery] string? q,
+        [FromQuery] bool? featured,
         [FromQuery] int page = 1,
         [FromQuery] int pageSize = 10,
         CancellationToken cancellationToken = default)
     {
-        var query = new GetProductsQuery(categoryId, q, page, pageSize);
+        var query = new GetProductsQuery(categoryId, q, featured, page, pageSize);
         var result = await this.getProductsHandler.Handle(query, cancellationToken);
         return this.Ok(result);
     }
@@ -176,6 +178,7 @@ public class AdminProductsController : ControllerBase
             request.Videos,
             request.Specifications,
             request.IsActive,
+            request.IsFeatured,
             request.Variants);
 
         var validationResult = await this.updateProductValidator.ValidateAsync(command, cancellationToken);

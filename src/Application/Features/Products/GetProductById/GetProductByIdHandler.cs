@@ -60,6 +60,7 @@ public class GetProductByIdHandler
             product.Videos,
             product.Specifications,
             product.IsActive,
+            product.IsFeatured,
             product.Variants.Select(v => new ProductVariantDto(v.Id, v.Sku, v.VariantName, v.Price, v.StockQuantity)).ToList(),
             product.CreatedAt,
             product.UpdatedAt);

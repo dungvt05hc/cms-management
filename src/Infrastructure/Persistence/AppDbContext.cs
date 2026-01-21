@@ -135,6 +135,7 @@ public class AppDbContext : DbContext, IAppDbContext
             entity.Property(e => e.Videos).HasMaxLength(2000);
             entity.Property(e => e.Specifications).HasMaxLength(4000);
             entity.Property(e => e.IsActive).IsRequired();
+            entity.Property(e => e.IsFeatured).IsRequired();
             entity.Property(e => e.CreatedAt).IsRequired();
             entity.Property(e => e.UpdatedAt).IsRequired();
 
