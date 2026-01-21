@@ -8,6 +8,10 @@ using Application.Features.Auth.Login;
 using Application.Features.Auth.Register;
 using Application.Features.Auth.ResetPassword;
 using Application.Features.Auth.VerifyOtp;
+using Application.Features.Categories.CreateCategory;
+using Application.Features.Categories.DeleteCategory;
+using Application.Features.Categories.GetCategoryTree;
+using Application.Features.Categories.UpdateCategory;
 using Application.Features.Staff.CreateStaff;
 using Application.Features.Users.GetProfile;
 using Application.Health;
@@ -39,6 +43,10 @@ public static class DependencyInjection
         services.AddScoped<ResetPasswordHandler>();
         services.AddScoped<AdminLoginHandler>();
         services.AddScoped<CreateStaffHandler>();
+        services.AddScoped<CreateCategoryHandler>();
+        services.AddScoped<UpdateCategoryHandler>();
+        services.AddScoped<DeleteCategoryHandler>();
+        services.AddScoped<GetCategoryTreeHandler>();
 
         // Register validators
         services.AddValidatorsFromAssemblyContaining<RegisterValidator>();
