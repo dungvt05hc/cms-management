@@ -68,9 +68,10 @@ public sealed class AuthEndpointTests : IDisposable
     public async Task AuthFlow_RegisterVerifyLoginGetProfile_ReturnsSuccess()
     {
         // Arrange
+        var phoneNumber = $"+8490{Random.Shared.Next(1000000, 9999999)}";
         var registerCommand = new RegisterCommand(
-            Phone: "+84901234567",
-            Email: "test@example.com",
+            Phone: phoneNumber,
+            Email: $"test-{Guid.NewGuid()}@example.com",
             FullName: "Test User",
             Password: "SecurePassword123");
 
@@ -127,15 +128,16 @@ public sealed class AuthEndpointTests : IDisposable
     public async Task Register_DuplicatePhone_ReturnsConflict()
     {
         // Arrange
+        var phoneNumber = $"+8490{Random.Shared.Next(1000000, 9999999)}";
         var registerCommand1 = new RegisterCommand(
-            Phone: "+84901234568",
-            Email: "test1@example.com",
+            Phone: phoneNumber,
+            Email: $"test1-{Guid.NewGuid()}@example.com",
             FullName: "Test User 1",
             Password: "SecurePassword123");
 
         var registerCommand2 = new RegisterCommand(
-            Phone: "+84901234568", // Same phone
-            Email: "test2@example.com",
+            Phone: phoneNumber, // Same phone
+            Email: $"test2-{Guid.NewGuid()}@example.com",
             FullName: "Test User 2",
             Password: "SecurePassword456");
 
@@ -177,9 +179,10 @@ public sealed class AuthEndpointTests : IDisposable
     public async Task Register_WeakPassword_ReturnsBadRequest()
     {
         // Arrange
+        var phoneNumber = $"+8490{Random.Shared.Next(1000000, 9999999)}";
         var registerCommand = new RegisterCommand(
-            Phone: "+84901234569",
-            Email: "test@example.com",
+            Phone: phoneNumber,
+            Email: $"test-{Guid.NewGuid()}@example.com",
             FullName: "Test User",
             Password: "short");
 
@@ -198,9 +201,10 @@ public sealed class AuthEndpointTests : IDisposable
     public async Task VerifyOtp_InvalidCode_ReturnsBadRequest()
     {
         // Arrange
+        var phoneNumber = $"+8490{Random.Shared.Next(1000000, 9999999)}";
         var registerCommand = new RegisterCommand(
-            Phone: "+84901234570",
-            Email: "test@example.com",
+            Phone: phoneNumber,
+            Email: $"test-{Guid.NewGuid()}@example.com",
             FullName: "Test User",
             Password: "SecurePassword123");
         await this.client.PostAsJsonAsync("/auth/register", registerCommand);
@@ -224,9 +228,10 @@ public sealed class AuthEndpointTests : IDisposable
     public async Task Login_InvalidCredentials_ReturnsUnauthorized()
     {
         // Arrange
+        var phoneNumber = $"+8490{Random.Shared.Next(1000000, 9999999)}";
         var registerCommand = new RegisterCommand(
-            Phone: "+84901234571",
-            Email: "test@example.com",
+            Phone: phoneNumber,
+            Email: $"test-{Guid.NewGuid()}@example.com",
             FullName: "Test User",
             Password: "SecurePassword123");
         await this.client.PostAsJsonAsync("/auth/register", registerCommand);
@@ -250,8 +255,9 @@ public sealed class AuthEndpointTests : IDisposable
     public async Task Login_NonExistentUser_ReturnsUnauthorized()
     {
         // Arrange
+        var phoneNumber = $"+8490{Random.Shared.Next(1000000, 9999999)}";
         var loginQuery = new LoginQuery(
-            PhoneOrEmail: "+84999999999",
+            PhoneOrEmail: phoneNumber,
             Password: "AnyPassword123");
 
         // Act
@@ -300,9 +306,11 @@ public sealed class AuthEndpointTests : IDisposable
     public async Task Login_WithEmail_ReturnsSuccess()
     {
         // Arrange
+        var phoneNumber = $"+8490{Random.Shared.Next(1000000, 9999999)}";
+        var email = $"email-login-{Guid.NewGuid()}@example.com";
         var registerCommand = new RegisterCommand(
-            Phone: "+84901234572",
-            Email: "email-login@example.com",
+            Phone: phoneNumber,
+            Email: email,
             FullName: "Test User Email",
             Password: "SecurePassword123");
 
@@ -316,7 +324,7 @@ public sealed class AuthEndpointTests : IDisposable
 
         // Act: Login with email
         var loginQuery = new LoginQuery(
-            PhoneOrEmail: registerCommand.Email!,
+            PhoneOrEmail: email,
             Password: registerCommand.Password);
         var response = await this.client.PostAsJsonAsync("/auth/login", loginQuery);
 
