@@ -42,6 +42,9 @@ public static class DependencyInjection
         services.AddScoped<IJwtTokenGenerator, JwtTokenGenerator>();
         services.AddScoped<IPasswordHasher, PasswordHasher>();
 
+        // Email
+        services.AddScoped<IEmailSender, EmailSender>();
+
         return services;
     }
 }

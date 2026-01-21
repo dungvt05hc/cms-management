@@ -18,6 +18,11 @@ public interface IAppDbContext
     DbSet<User> Users { get; }
 
     /// <summary>
+    /// Gets the PasswordResetTokens DbSet.
+    /// </summary>
+    DbSet<PasswordResetToken> PasswordResetTokens { get; }
+
+    /// <summary>
     /// Saves all changes made in this context to the database.
     /// </summary>
     /// <param name="cancellationToken">A cancellation token.</param>
