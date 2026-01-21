@@ -12,6 +12,11 @@ using Application.Features.Categories.CreateCategory;
 using Application.Features.Categories.DeleteCategory;
 using Application.Features.Categories.GetCategoryTree;
 using Application.Features.Categories.UpdateCategory;
+using Application.Features.Products.CreateProduct;
+using Application.Features.Products.DeleteProduct;
+using Application.Features.Products.GetProductById;
+using Application.Features.Products.GetProducts;
+using Application.Features.Products.UpdateProduct;
 using Application.Features.Staff.CreateStaff;
 using Application.Features.Users.GetProfile;
 using Application.Health;
@@ -47,6 +52,13 @@ public static class DependencyInjection
         services.AddScoped<UpdateCategoryHandler>();
         services.AddScoped<DeleteCategoryHandler>();
         services.AddScoped<GetCategoryTreeHandler>();
+
+        // Register product handlers
+        services.AddScoped<CreateProductHandler>();
+        services.AddScoped<UpdateProductHandler>();
+        services.AddScoped<DeleteProductHandler>();
+        services.AddScoped<GetProductsHandler>();
+        services.AddScoped<GetProductByIdHandler>();
 
         // Register validators
         services.AddValidatorsFromAssemblyContaining<RegisterValidator>();

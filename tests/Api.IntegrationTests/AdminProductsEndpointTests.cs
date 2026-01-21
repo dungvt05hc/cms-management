@@ -63,10 +63,10 @@ public sealed class AdminProductsEndpointTests : IDisposable
                         services.Remove(descriptor);
                     }
 
-                    // Add in-memory database
+                    // Add in-memory database with a fixed name to share across contexts
                     services.AddDbContext<AppDbContext>(options =>
                     {
-                        options.UseInMemoryDatabase($"TestDb_{Guid.NewGuid()}");
+                        options.UseInMemoryDatabase("AdminProductsTestDb");
                     });
 
                     services.AddScoped<IAppDbContext>(provider => provider.GetRequiredService<AppDbContext>());
@@ -394,13 +394,12 @@ public sealed class AdminProductsEndpointTests : IDisposable
 
     private async Task<string> GetAdminTokenAsync()
     {
-        using var scope = this.factory.Services.CreateScope();
+        // Create admin user - keep scope alive until after login
+        var uniqueEmail = $"admin-{Guid.NewGuid()}@test.com";
+        var scope = this.factory.Services.CreateScope();
         var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
         var passwordHasher = scope.ServiceProvider.GetRequiredService<IPasswordHasher>();
         var dateTime = scope.ServiceProvider.GetRequiredService<IDateTime>();
-
-        // Use a unique email for each test to avoid collisions
-        var uniqueEmail = $"admin-{Guid.NewGuid()}@test.com";
 
         var admin = new StaffUser
         {
@@ -417,6 +416,7 @@ public sealed class AdminProductsEndpointTests : IDisposable
         dbContext.StaffUsers.Add(admin);
         await dbContext.SaveChangesAsync();
 
+        // Make the login request while scope is still active
         var loginCommand = new AdminLoginCommand(uniqueEmail, "Admin123!");
         var loginResponse = await this.client.PostAsJsonAsync("/admin/auth/login", loginCommand);
         loginResponse.EnsureSuccessStatusCode();
