@@ -96,6 +96,7 @@ public sealed class AdminProductsEndpointTests : IDisposable
             null,
             null,
             true,
+            false,
             new List<CreateProductVariantDto>
             {
                 new("SKU-001", "Variant 1", 100.00m, 10),
@@ -137,6 +138,7 @@ public sealed class AdminProductsEndpointTests : IDisposable
             null,
             null,
             true,
+            false,
             new List<CreateProductVariantDto>
             {
                 new("SKU-100", "Variant 1", 100.00m, 10),
@@ -153,6 +155,7 @@ public sealed class AdminProductsEndpointTests : IDisposable
             null,
             null,
             true,
+            false,
             new List<CreateProductVariantDto>
             {
                 new("SKU-200", "Variant 2", 150.00m, 5),
@@ -185,6 +188,7 @@ public sealed class AdminProductsEndpointTests : IDisposable
             null,
             null,
             true,
+            false,
             new List<CreateProductVariantDto>
             {
                 new("DUPLICATE-SKU", "Variant 1", 100.00m, 10),
@@ -201,6 +205,7 @@ public sealed class AdminProductsEndpointTests : IDisposable
             null,
             null,
             true,
+            false,
             new List<CreateProductVariantDto>
             {
                 new("DUPLICATE-SKU", "Variant 2", 150.00m, 5),
@@ -234,6 +239,7 @@ public sealed class AdminProductsEndpointTests : IDisposable
             null,
             null,
             true,
+            false,
             new List<CreateProductVariantDto>
             {
                 new("SKU-LIST-001", "Variant 1", 100.00m, 10),
@@ -273,6 +279,7 @@ public sealed class AdminProductsEndpointTests : IDisposable
             null,
             null,
             true,
+            false,
             new List<CreateProductVariantDto>
             {
                 new("SKU-GET-001", "Variant 1", 100.00m, 10),
@@ -313,6 +320,7 @@ public sealed class AdminProductsEndpointTests : IDisposable
             null,
             null,
             true,
+            false,
             new List<CreateProductVariantDto>
             {
                 new("SKU-UPDATE-001", "Variant 1", 100.00m, 10),
@@ -364,6 +372,7 @@ public sealed class AdminProductsEndpointTests : IDisposable
             null,
             null,
             true,
+            false,
             new List<CreateProductVariantDto>
             {
                 new("SKU-DELETE-001", "Variant 1", 100.00m, 10),

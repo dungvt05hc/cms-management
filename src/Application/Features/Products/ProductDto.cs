@@ -16,6 +16,7 @@ namespace Application.Features.Products;
 /// <param name="Videos">The videos.</param>
 /// <param name="Specifications">The specifications.</param>
 /// <param name="IsActive">Whether the product is active.</param>
+/// <param name="IsFeatured">Whether the product is featured on the home page.</param>
 /// <param name="Variants">The product variants.</param>
 /// <param name="CreatedAt">The creation timestamp.</param>
 /// <param name="UpdatedAt">The last update timestamp.</param>
@@ -29,6 +30,7 @@ public record ProductDto(
     string? Videos,
     string? Specifications,
     bool IsActive,
+    bool IsFeatured,
     List<ProductVariantDto> Variants,
     DateTime CreatedAt,
     DateTime UpdatedAt);

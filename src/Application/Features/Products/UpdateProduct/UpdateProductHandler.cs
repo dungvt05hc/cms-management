@@ -99,6 +99,7 @@ public class UpdateProductHandler
         product.Videos = command.Videos;
         product.Specifications = command.Specifications;
         product.IsActive = command.IsActive;
+        product.IsFeatured = command.IsFeatured;
         product.UpdatedAt = now;
 
         var existingVariantIds = command.Variants

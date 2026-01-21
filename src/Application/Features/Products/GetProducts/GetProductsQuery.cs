@@ -9,10 +9,12 @@ namespace Application.Features.Products.GetProducts;
 /// </summary>
 /// <param name="CategoryId">Filter by category.</param>
 /// <param name="Q">Search term for name or slug.</param>
+/// <param name="Featured">Filter by featured products.</param>
 /// <param name="Page">Page number (1-indexed).</param>
 /// <param name="PageSize">Page size.</param>
 public record GetProductsQuery(
     Guid? CategoryId,
     string? Q,
+    bool? Featured,
     int Page,
     int PageSize);

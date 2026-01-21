@@ -60,6 +60,11 @@ public class Product
     public bool IsActive { get; set; }
 
     /// <summary>
+    /// Gets or sets a value indicating whether the product is featured on the home page.
+    /// </summary>
+    public bool IsFeatured { get; set; }
+
+    /// <summary>
     /// Gets or sets the product variants.
     /// </summary>
     public ICollection<ProductVariant> Variants { get; set; } = new List<ProductVariant>();

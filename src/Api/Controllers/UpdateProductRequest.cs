@@ -17,6 +17,7 @@ namespace Api.Controllers;
 /// <param name="Videos">The videos.</param>
 /// <param name="Specifications">The specifications.</param>
 /// <param name="IsActive">Whether the product is active.</param>
+/// <param name="IsFeatured">Whether the product is featured on the home page.</param>
 /// <param name="Variants">The product variants.</param>
 public record UpdateProductRequest(
     string Name,
@@ -27,4 +28,5 @@ public record UpdateProductRequest(
     string? Videos,
     string? Specifications,
     bool IsActive,
+    bool IsFeatured,
     List<UpdateProductVariantDto> Variants);

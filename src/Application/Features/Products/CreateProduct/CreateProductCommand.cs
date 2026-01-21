@@ -15,6 +15,7 @@ namespace Application.Features.Products.CreateProduct;
 /// <param name="Videos">The videos.</param>
 /// <param name="Specifications">The specifications.</param>
 /// <param name="IsActive">Whether the product is active.</param>
+/// <param name="IsFeatured">Whether the product is featured on the home page.</param>
 /// <param name="Variants">The product variants.</param>
 public record CreateProductCommand(
     string Name,
@@ -25,4 +26,5 @@ public record CreateProductCommand(
     string? Videos,
     string? Specifications,
     bool IsActive,
+    bool IsFeatured,
     List<CreateProductVariantDto> Variants);
