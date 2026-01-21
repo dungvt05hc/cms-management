@@ -1,7 +1,6 @@
 ---
 name: API Slice Builder (.NET Vertical Slice — E-commerce + CMS)
-description: >-
-Builds ONE backend vertical slice per Issue for cms-management buyer storefront APIs + admin portal APIs + CMS (articles/pages/help) + cart/checkout/order/payment/shipping/vouchers/loyalty + notifications. Integrations: FCM, GA/GTM (frontend only), Payoo payment redirect/callback, Shipping SDK quote, VAT e-invoice issuance scheduling. Includes validation, persistence/migrations, OpenAPI updates, and unit/integration tests. Follow 1 Issue = 1 PR and ensure quality gates pass.
+description: Builds ONE backend vertical slice per Issue for cms-management buyer storefront APIs + admin portal APIs + CMS (articles/pages/help) + cart/checkout/order/payment/shipping/vouchers/loyalty + notifications
 # model: sonnet-4.5
 tools: ["read", "search", "edit", "execute"]
 infer: true
