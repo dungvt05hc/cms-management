@@ -2,8 +2,10 @@
 // Copyright (c) CMS Management. All rights reserved.
 // </copyright>
 
+using Application.Features.Auth.ForgotPassword;
 using Application.Features.Auth.Login;
 using Application.Features.Auth.Register;
+using Application.Features.Auth.ResetPassword;
 using Application.Features.Auth.VerifyOtp;
 using Application.Features.Users.GetProfile;
 using Application.Health;
@@ -31,6 +33,8 @@ public static class DependencyInjection
         services.AddScoped<VerifyOtpHandler>();
         services.AddScoped<LoginHandler>();
         services.AddScoped<GetProfileHandler>();
+        services.AddScoped<ForgotPasswordHandler>();
+        services.AddScoped<ResetPasswordHandler>();
 
         // Register validators
         services.AddValidatorsFromAssemblyContaining<RegisterValidator>();

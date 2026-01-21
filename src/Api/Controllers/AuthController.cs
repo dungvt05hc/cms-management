@@ -2,8 +2,10 @@
 // Copyright (c) CMS Management. All rights reserved.
 // </copyright>
 
+using Application.Features.Auth.ForgotPassword;
 using Application.Features.Auth.Login;
 using Application.Features.Auth.Register;
+using Application.Features.Auth.ResetPassword;
 using Application.Features.Auth.VerifyOtp;
 using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
@@ -20,9 +22,13 @@ public class AuthController : ControllerBase
     private readonly RegisterHandler registerHandler;
     private readonly VerifyOtpHandler verifyOtpHandler;
     private readonly LoginHandler loginHandler;
+    private readonly ForgotPasswordHandler forgotPasswordHandler;
+    private readonly ResetPasswordHandler resetPasswordHandler;
     private readonly IValidator<RegisterCommand> registerValidator;
     private readonly IValidator<VerifyOtpCommand> verifyOtpValidator;
     private readonly IValidator<LoginQuery> loginValidator;
+    private readonly IValidator<ForgotPasswordCommand> forgotPasswordValidator;
+    private readonly IValidator<ResetPasswordCommand> resetPasswordValidator;
     private readonly ILogger<AuthController> logger;
 
     /// <summary>
@@ -31,25 +37,37 @@ public class AuthController : ControllerBase
     /// <param name="registerHandler">The register handler.</param>
     /// <param name="verifyOtpHandler">The verify OTP handler.</param>
     /// <param name="loginHandler">The login handler.</param>
+    /// <param name="forgotPasswordHandler">The forgot password handler.</param>
+    /// <param name="resetPasswordHandler">The reset password handler.</param>
     /// <param name="registerValidator">The register validator.</param>
     /// <param name="verifyOtpValidator">The verify OTP validator.</param>
     /// <param name="loginValidator">The login validator.</param>
+    /// <param name="forgotPasswordValidator">The forgot password validator.</param>
+    /// <param name="resetPasswordValidator">The reset password validator.</param>
     /// <param name="logger">The logger.</param>
     public AuthController(
         RegisterHandler registerHandler,
         VerifyOtpHandler verifyOtpHandler,
         LoginHandler loginHandler,
+        ForgotPasswordHandler forgotPasswordHandler,
+        ResetPasswordHandler resetPasswordHandler,
         IValidator<RegisterCommand> registerValidator,
         IValidator<VerifyOtpCommand> verifyOtpValidator,
         IValidator<LoginQuery> loginValidator,
+        IValidator<ForgotPasswordCommand> forgotPasswordValidator,
+        IValidator<ResetPasswordCommand> resetPasswordValidator,
         ILogger<AuthController> logger)
     {
         this.registerHandler = registerHandler;
         this.verifyOtpHandler = verifyOtpHandler;
         this.loginHandler = loginHandler;
+        this.forgotPasswordHandler = forgotPasswordHandler;
+        this.resetPasswordHandler = resetPasswordHandler;
         this.registerValidator = registerValidator;
         this.verifyOtpValidator = verifyOtpValidator;
         this.loginValidator = loginValidator;
+        this.forgotPasswordValidator = forgotPasswordValidator;
+        this.resetPasswordValidator = resetPasswordValidator;
         this.logger = logger;
     }
 
@@ -142,6 +160,59 @@ public class AuthController : ControllerBase
         catch (UnauthorizedAccessException ex)
         {
             return this.Unauthorized(new { Message = ex.Message });
+        }
+    }
+
+    /// <summary>
+    /// Request password reset via email.
+    /// </summary>
+    /// <param name="command">The forgot password command.</param>
+    /// <param name="cancellationToken">Cancellation token.</param>
+    /// <returns>OK if request is processed.</returns>
+    [HttpPost("password/forgot")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> ForgotPassword(
+        [FromBody] ForgotPasswordCommand command,
+        CancellationToken cancellationToken)
+    {
+        var validationResult = await this.forgotPasswordValidator.ValidateAsync(command, cancellationToken);
+        if (!validationResult.IsValid)
+        {
+            return this.BadRequest(new { Errors = validationResult.Errors.Select(e => e.ErrorMessage) });
+        }
+
+        await this.forgotPasswordHandler.Handle(command, cancellationToken);
+        return this.Ok(new { Message = "If the email exists, a password reset link has been sent." });
+    }
+
+    /// <summary>
+    /// Reset password using token.
+    /// </summary>
+    /// <param name="command">The reset password command.</param>
+    /// <param name="cancellationToken">Cancellation token.</param>
+    /// <returns>OK if password is reset successfully.</returns>
+    [HttpPost("password/reset")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> ResetPassword(
+        [FromBody] ResetPasswordCommand command,
+        CancellationToken cancellationToken)
+    {
+        var validationResult = await this.resetPasswordValidator.ValidateAsync(command, cancellationToken);
+        if (!validationResult.IsValid)
+        {
+            return this.BadRequest(new { Errors = validationResult.Errors.Select(e => e.ErrorMessage) });
+        }
+
+        try
+        {
+            await this.resetPasswordHandler.Handle(command, cancellationToken);
+            return this.Ok(new { Message = "Password reset successfully." });
+        }
+        catch (InvalidOperationException ex)
+        {
+            return this.BadRequest(new { Message = ex.Message });
         }
     }
 }
