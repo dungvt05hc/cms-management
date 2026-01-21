@@ -33,6 +33,11 @@ public class AppDbContext : DbContext, IAppDbContext
     public DbSet<PasswordResetToken> PasswordResetTokens { get; set; } = null!;
 
     /// <summary>
+    /// Gets or sets the StaffUsers DbSet.
+    /// </summary>
+    public DbSet<StaffUser> StaffUsers { get; set; } = null!;
+
+    /// <summary>
     /// Configures the database schema.
     /// </summary>
     /// <param name="modelBuilder">The model builder.</param>
@@ -69,6 +74,22 @@ public class AppDbContext : DbContext, IAppDbContext
                 .WithMany()
                 .HasForeignKey(e => e.UserId)
                 .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<StaffUser>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.HasIndex(e => e.Email).IsUnique();
+            entity.HasIndex(e => e.Phone).IsUnique();
+
+            entity.Property(e => e.Email).IsRequired().HasMaxLength(256);
+            entity.Property(e => e.Phone).HasMaxLength(20);
+            entity.Property(e => e.FullName).IsRequired().HasMaxLength(256);
+            entity.Property(e => e.PasswordHash).IsRequired().HasMaxLength(256);
+            entity.Property(e => e.Role).IsRequired();
+            entity.Property(e => e.IsActive).IsRequired();
+            entity.Property(e => e.CreatedAt).IsRequired();
+            entity.Property(e => e.UpdatedAt).IsRequired();
         });
     }
 }
