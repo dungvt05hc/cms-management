@@ -3,7 +3,11 @@
 // </copyright>
 
 using Application.Abstractions;
+using Infrastructure.Auth;
+using Infrastructure.Persistence;
 using Infrastructure.Services;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Infrastructure;
@@ -17,10 +21,26 @@ public static class DependencyInjection
     /// Registers Infrastructure services into the DI container.
     /// </summary>
     /// <param name="services">The service collection.</param>
+    /// <param name="configuration">The configuration.</param>
     /// <returns>The service collection for chaining.</returns>
-    public static IServiceCollection AddInfrastructure(this IServiceCollection services)
+    public static IServiceCollection AddInfrastructure(
+        this IServiceCollection services,
+        IConfiguration configuration)
     {
         services.AddSingleton<IDateTime, SystemClock>();
+
+        // Database
+        services.AddDbContext<AppDbContext>(options =>
+            options.UseNpgsql(
+                configuration.GetConnectionString("DefaultConnection"),
+                b => b.MigrationsAssembly(typeof(AppDbContext).Assembly.FullName)));
+
+        services.AddScoped<IAppDbContext>(sp => sp.GetRequiredService<AppDbContext>());
+
+        // Authentication
+        services.Configure<JwtSettings>(configuration.GetSection("JwtSettings"));
+        services.AddScoped<IJwtTokenGenerator, JwtTokenGenerator>();
+        services.AddScoped<IPasswordHasher, PasswordHasher>();
 
         return services;
     }
