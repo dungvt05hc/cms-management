@@ -1,0 +1,49 @@
+## Ignore build artifacts
+bin/
+obj/
+
+## Ignore user-specific files
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+## Build results
+[Dd]ebug/
+[Rr]elease/
+x64/
+x86/
+[Ww][Ii][Nn]32/
+[Aa][Rr][Mm]/
+[Aa][Rr][Mm]64/
+bld/
+[Bb]in/
+[Oo]bj/
+
+## Visual Studio cache/options directory
+.vs/
+
+## Rider
+.idea/
+
+## ReSharper is a .NET coding add-in
+_ReSharper*/
+*.[Rr]e[Ss]harper
+*.DotSettings.user
+
+## Test results
+TestResults/
+[Tt]est[Rr]esult*/
+*.trx
+
+## NuGet Packages
+*.nupkg
+**/packages/*
+!**/packages/build/
+
+## Mac
+.DS_Store
+
+## Temporary files
+*.tmp
+*.temp

@@ -2,7 +2,12 @@
 // Copyright (c) CMS Management. All rights reserved.
 // </copyright>
 
+using Application.Features.Auth.Login;
+using Application.Features.Auth.Register;
+using Application.Features.Auth.VerifyOtp;
+using Application.Features.Users.GetProfile;
 using Application.Health;
+using FluentValidation;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Application;
@@ -20,6 +25,15 @@ public static class DependencyInjection
     public static IServiceCollection AddApplication(this IServiceCollection services)
     {
         services.AddScoped<HealthHandler>();
+
+        // Register handlers
+        services.AddScoped<RegisterHandler>();
+        services.AddScoped<VerifyOtpHandler>();
+        services.AddScoped<LoginHandler>();
+        services.AddScoped<GetProfileHandler>();
+
+        // Register validators
+        services.AddValidatorsFromAssemblyContaining<RegisterValidator>();
 
         return services;
     }
