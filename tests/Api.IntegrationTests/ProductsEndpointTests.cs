@@ -212,6 +212,15 @@ public sealed class ProductsEndpointTests : IDisposable
     }
 
     /// <summary>
+    /// Disposes the test resources.
+    /// </summary>
+    public void Dispose()
+    {
+        this.client.Dispose();
+        this.factory.Dispose();
+    }
+
+    /// <summary>
     /// Gets an admin authentication token for testing.
     /// </summary>
     /// <returns>The admin token.</returns>
@@ -242,14 +251,5 @@ public sealed class ProductsEndpointTests : IDisposable
         loginResponse.EnsureSuccessStatusCode();
         var loginResult = await loginResponse.Content.ReadFromJsonAsync<AdminLoginResult>();
         return loginResult!.AccessToken;
-    }
-
-    /// <summary>
-    /// Disposes the test resources.
-    /// </summary>
-    public void Dispose()
-    {
-        this.client.Dispose();
-        this.factory.Dispose();
     }
 }
