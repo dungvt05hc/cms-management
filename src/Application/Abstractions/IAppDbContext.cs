@@ -33,6 +33,16 @@ public interface IAppDbContext
     DbSet<Category> Categories { get; }
 
     /// <summary>
+    /// Gets the Products DbSet.
+    /// </summary>
+    DbSet<Product> Products { get; }
+
+    /// <summary>
+    /// Gets the ProductVariants DbSet.
+    /// </summary>
+    DbSet<ProductVariant> ProductVariants { get; }
+
+    /// <summary>
     /// Saves all changes made in this context to the database.
     /// </summary>
     /// <param name="cancellationToken">A cancellation token.</param>

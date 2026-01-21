@@ -159,3 +159,38 @@ Frontend (if present):
 - Update OpenAPI if public endpoints changed
 - Include “How to test” steps
 - No secrets, no unrelated refactors
+
+## Default agent routing (Issue → Agent)
+
+We use GitHub Copilot Custom Agents. For consistency, we follow this default routing based on the issue title prefix:
+
+### 1) [BE] issues (Backend only)
+**Default agent:** `api-slice-builder`
+- Owns: REST controllers, Application use-cases, Domain rules, Infrastructure persistence/adapters, EF migrations, backend tests.
+- Must: `dotnet build/test` green.
+
+### 2) [FE] issues (Frontend only)
+**Default agent:** `frontend-e2e-builder`
+- Owns: `apps/web` screens, client calls, UI states, and FE build/lint.
+- If E2E is required by the issue, add/update Playwright tests.
+
+### 3) [BE+FE] issues (Full vertical slice in one PR)
+**Default agent:** `fullstack-slice-builder` ✅
+- Owns: End-to-end slice in ONE PR with two phases:
+  - **Phase A (Backend):** implement API contract + tests + (migration if required)
+  - **Phase B (Frontend + E2E):** implement UI + Playwright happy path
+- Must: CI green for Backend + Frontend + E2E.
+
+### 4) Hardening / review pass
+**Default agent:** `quality-guardian`
+- Owns: security pass, refactor, performance, logging/PII checks, flaky test fixes.
+- Used when: issue title starts with `[HARDEN]` or when explicitly assigned.
+
+---
+
+## Assignment rule of thumb
+
+- If the issue title prefix is `[BE+FE]`, ALWAYS start with `fullstack-slice-builder` (unless the issue explicitly says otherwise).
+- If an issue is marked `[BE+FE]` but is too large for one PR, split into two issues:
+  - `[BE] ...` then `[FE] ...` (still follow 1 issue = 1 PR).
+- Always keep PR scope limited to the Acceptance Criteria in the issue.
