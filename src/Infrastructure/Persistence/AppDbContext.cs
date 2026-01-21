@@ -38,6 +38,11 @@ public class AppDbContext : DbContext, IAppDbContext
     public DbSet<StaffUser> StaffUsers { get; set; } = null!;
 
     /// <summary>
+    /// Gets or sets the Categories DbSet.
+    /// </summary>
+    public DbSet<Category> Categories { get; set; } = null!;
+
+    /// <summary>
     /// Configures the database schema.
     /// </summary>
     /// <param name="modelBuilder">The model builder.</param>
@@ -90,6 +95,21 @@ public class AppDbContext : DbContext, IAppDbContext
             entity.Property(e => e.IsActive).IsRequired();
             entity.Property(e => e.CreatedAt).IsRequired();
             entity.Property(e => e.UpdatedAt).IsRequired();
+        });
+
+        modelBuilder.Entity<Category>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.HasIndex(e => e.ParentId);
+
+            entity.Property(e => e.Name).IsRequired().HasMaxLength(256);
+            entity.Property(e => e.CreatedAt).IsRequired();
+            entity.Property(e => e.UpdatedAt).IsRequired();
+
+            entity.HasOne(e => e.Parent)
+                .WithMany(e => e.Children)
+                .HasForeignKey(e => e.ParentId)
+                .OnDelete(DeleteBehavior.Restrict);
         });
     }
 }

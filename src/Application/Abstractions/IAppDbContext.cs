@@ -28,6 +28,11 @@ public interface IAppDbContext
     DbSet<StaffUser> StaffUsers { get; }
 
     /// <summary>
+    /// Gets the Categories DbSet.
+    /// </summary>
+    DbSet<Category> Categories { get; }
+
+    /// <summary>
     /// Saves all changes made in this context to the database.
     /// </summary>
     /// <param name="cancellationToken">A cancellation token.</param>
