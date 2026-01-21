@@ -57,11 +57,8 @@ public class AdminLoginHandler
 
         if (staffUser == null)
         {
-            // Mask for logging
-            var maskedIdentifier = sanitizedEmailOrPhone.Length > 3
-                ? $"{sanitizedEmailOrPhone[..2]}***{sanitizedEmailOrPhone[^1]}"
-                : "***";
-            this.logger.LogWarning("Staff login attempt failed: user not found for {MaskedIdentifier}", maskedIdentifier);
+            // Do not log user-supplied identifier to avoid exposing private information
+            this.logger.LogWarning("Staff login attempt failed: user not found for provided credentials.");
             throw new UnauthorizedAccessException("Invalid credentials.");
         }
 
