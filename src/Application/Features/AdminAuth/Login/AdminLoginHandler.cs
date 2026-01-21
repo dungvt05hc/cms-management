@@ -47,6 +47,9 @@ public class AdminLoginHandler
     public async Task<AdminLoginResult> Handle(AdminLoginCommand command, CancellationToken cancellationToken)
     {
         var emailOrPhone = command.EmailOrPhone;
+        var sanitizedEmailOrPhone = (emailOrPhone ?? string.Empty)
+            .Replace("\r", string.Empty, StringComparison.Ordinal)
+            .Replace("\n", string.Empty, StringComparison.Ordinal);
 
         // Find staff user by email or phone
         var staffUser = await this.dbContext.StaffUsers
@@ -55,8 +58,8 @@ public class AdminLoginHandler
         if (staffUser == null)
         {
             // Mask for logging
-            var maskedIdentifier = emailOrPhone.Length > 3
-                ? $"{emailOrPhone[..2]}***{emailOrPhone[^1]}"
+            var maskedIdentifier = sanitizedEmailOrPhone.Length > 3
+                ? $"{sanitizedEmailOrPhone[..2]}***{sanitizedEmailOrPhone[^1]}"
                 : "***";
             this.logger.LogWarning("Staff login attempt failed: user not found for {MaskedIdentifier}", maskedIdentifier);
             throw new UnauthorizedAccessException("Invalid credentials.");
