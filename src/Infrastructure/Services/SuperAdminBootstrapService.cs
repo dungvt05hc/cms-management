@@ -88,9 +88,6 @@ public class SuperAdminBootstrapService
         this.dbContext.StaffUsers.Add(superAdmin);
         await this.dbContext.SaveChangesAsync(cancellationToken);
 
-        var maskedEmail = email.Length > 3
-            ? $"{email[..2]}***@{email.Split('@')[1]}"
-            : "***";
-        this.logger.LogInformation("Super admin account created successfully: {MaskedEmail}", maskedEmail);
+        this.logger.LogInformation("Super admin account created successfully.");
     }
 }
