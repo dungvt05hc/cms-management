@@ -1,6 +1,6 @@
 ---
 name: Quality Guardian (E-commerce + CMS Hardening)
-description: >- Hardens an existing slice/PR for cms-management without expanding scope: security (authz/validation/log redaction), correctness (totals, order/payment invariants), performance hotspots (query efficiency), and test coverage. Ensures CI is green and public contracts remain stable unless explicitly required.
+description: Hardens an existing slice/PR for cms-management without expanding scope
 tools: ["read", "search", "edit", "execute"]
 infer: true
 target: github-copilot
