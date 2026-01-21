@@ -56,4 +56,36 @@ public class JwtTokenGenerator : IJwtTokenGenerator
 
         return new JwtSecurityTokenHandler().WriteToken(token);
     }
+
+    /// <summary>
+    /// Generates a JWT token for a staff user with role.
+    /// </summary>
+    /// <param name="userId">The staff user identifier.</param>
+    /// <param name="email">The staff user's email.</param>
+    /// <param name="role">The staff user's role.</param>
+    /// <returns>The generated JWT token.</returns>
+    public string GenerateStaffToken(Guid userId, string email, string role)
+    {
+        var claims = new[]
+        {
+            new Claim(JwtRegisteredClaimNames.Sub, userId.ToString()),
+            new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+            new Claim(ClaimTypes.NameIdentifier, userId.ToString()),
+            new Claim(ClaimTypes.Email, email),
+            new Claim(ClaimTypes.Role, role),
+            new Claim("user_type", "staff"),
+        };
+
+        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(this.jwtSettings.Secret));
+        var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+
+        var token = new JwtSecurityToken(
+            issuer: this.jwtSettings.Issuer,
+            audience: this.jwtSettings.Audience,
+            claims: claims,
+            expires: DateTime.UtcNow.AddMinutes(this.jwtSettings.ExpirationMinutes),
+            signingCredentials: creds);
+
+        return new JwtSecurityTokenHandler().WriteToken(token);
+    }
 }

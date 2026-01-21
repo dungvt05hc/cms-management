@@ -39,13 +39,27 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
-builder.Services.AddAuthorization();
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("AdminOnly", policy =>
+        policy.RequireRole("SuperAdmin", "Admin"));
+
+    options.AddPolicy("StaffOrAdmin", policy =>
+        policy.RequireRole("SuperAdmin", "Admin", "Staff"));
+});
 builder.Services.AddControllers();
 
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
 
 var app = builder.Build();
+
+// Bootstrap super admin on startup
+using (var scope = app.Services.CreateScope())
+{
+    var bootstrapService = scope.ServiceProvider.GetRequiredService<Infrastructure.Services.SuperAdminBootstrapService>();
+    await bootstrapService.BootstrapAsync();
+}
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
