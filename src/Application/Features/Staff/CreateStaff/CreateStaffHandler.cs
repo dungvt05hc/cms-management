@@ -52,7 +52,10 @@ public class CreateStaffHandler
 
         if (existingByEmail)
         {
-            this.logger.LogWarning("Staff creation failed: email {Email} already exists", command.Email);
+            var maskedEmail = command.Email.Length > 3
+                ? $"{command.Email[..2]}***@{command.Email.Split('@')[1]}"
+                : "***";
+            this.logger.LogWarning("Staff creation failed: email {MaskedEmail} already exists", maskedEmail);
             throw new InvalidOperationException("Email already exists.");
         }
 
@@ -64,7 +67,10 @@ public class CreateStaffHandler
 
             if (existingByPhone)
             {
-                this.logger.LogWarning("Staff creation failed: phone {Phone} already exists", command.Phone);
+                var maskedPhone = command.Phone.Length > 3
+                    ? $"{command.Phone[..3]}***{command.Phone[^2..]}"
+                    : "***";
+                this.logger.LogWarning("Staff creation failed: phone {MaskedPhone} already exists", maskedPhone);
                 throw new InvalidOperationException("Phone number already exists.");
             }
         }
@@ -92,7 +98,10 @@ public class CreateStaffHandler
         this.dbContext.StaffUsers.Add(staffUser);
         await this.dbContext.SaveChangesAsync(cancellationToken);
 
-        this.logger.LogInformation("Staff user created: {Email} with role {Role}", staffUser.Email, staffUser.Role);
+        var maskedEmailSuccess = staffUser.Email.Length > 3
+            ? $"{staffUser.Email[..2]}***@{staffUser.Email.Split('@')[1]}"
+            : "***";
+        this.logger.LogInformation("Staff user created: {MaskedEmail} with role {Role}", maskedEmailSuccess, staffUser.Role);
 
         return new CreateStaffResult(staffUser.Id, staffUser.Email, staffUser.FullName, staffUser.Role.ToString());
     }

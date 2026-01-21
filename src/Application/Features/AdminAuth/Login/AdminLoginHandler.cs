@@ -54,20 +54,30 @@ public class AdminLoginHandler
 
         if (staffUser == null)
         {
-            this.logger.LogWarning("Staff login attempt failed: user not found for {EmailOrPhone}", emailOrPhone);
+            // Mask for logging
+            var maskedIdentifier = emailOrPhone.Length > 3
+                ? $"{emailOrPhone[..2]}***{emailOrPhone[^1]}"
+                : "***";
+            this.logger.LogWarning("Staff login attempt failed: user not found for {MaskedIdentifier}", maskedIdentifier);
             throw new UnauthorizedAccessException("Invalid credentials.");
         }
 
         if (!staffUser.IsActive)
         {
-            this.logger.LogWarning("Staff login attempt failed: account inactive for {Email}", staffUser.Email);
+            var maskedEmail = staffUser.Email.Length > 3
+                ? $"{staffUser.Email[..2]}***@{staffUser.Email.Split('@')[1]}"
+                : "***";
+            this.logger.LogWarning("Staff login attempt failed: account inactive for {MaskedEmail}", maskedEmail);
             throw new UnauthorizedAccessException("Account is inactive.");
         }
 
         // Verify password
         if (!this.passwordHasher.VerifyPassword(command.Password, staffUser.PasswordHash))
         {
-            this.logger.LogWarning("Staff login attempt failed: invalid password for {Email}", staffUser.Email);
+            var maskedEmail = staffUser.Email.Length > 3
+                ? $"{staffUser.Email[..2]}***@{staffUser.Email.Split('@')[1]}"
+                : "***";
+            this.logger.LogWarning("Staff login attempt failed: invalid password for {MaskedEmail}", maskedEmail);
             throw new UnauthorizedAccessException("Invalid credentials.");
         }
 
@@ -77,7 +87,10 @@ public class AdminLoginHandler
             staffUser.Email,
             staffUser.Role.ToString());
 
-        this.logger.LogInformation("Staff user {Email} logged in successfully with role {Role}", staffUser.Email, staffUser.Role);
+        var maskedEmailSuccess = staffUser.Email.Length > 3
+            ? $"{staffUser.Email[..2]}***@{staffUser.Email.Split('@')[1]}"
+            : "***";
+        this.logger.LogInformation("Staff user {MaskedEmail} logged in successfully with role {Role}", maskedEmailSuccess, staffUser.Role);
 
         return new AdminLoginResult(token, 60, staffUser.Role.ToString());
     }
