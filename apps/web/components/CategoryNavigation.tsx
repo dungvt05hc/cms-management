@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import type { CategoryTreeNode } from "@/lib/api";
 
 interface CategoryNavigationProps {
@@ -23,9 +24,7 @@ function CategoryItem({ category, level }: CategoryItemProps) {
           display: "flex",
           alignItems: "center",
           padding: "8px 0",
-          cursor: hasChildren ? "pointer" : "default",
         }}
-        onClick={() => hasChildren && setIsExpanded(!isExpanded)}
         data-testid={`category-${category.id}`}
       >
         {hasChildren && (
@@ -35,7 +34,9 @@ function CategoryItem({ category, level }: CategoryItemProps) {
               width: 16,
               display: "inline-block",
               fontWeight: "bold",
+              cursor: "pointer",
             }}
+            onClick={() => setIsExpanded(!isExpanded)}
             data-testid={`category-toggle-${category.id}`}
           >
             {isExpanded ? "▼" : "▶"}
@@ -46,7 +47,13 @@ function CategoryItem({ category, level }: CategoryItemProps) {
             •
           </span>
         )}
-        <span data-testid={`category-name-${category.id}`}>{category.name}</span>
+        <Link
+          href={`/category/${category.id}`}
+          data-testid={`category-link-${category.id}`}
+          style={{ textDecoration: "none", color: "#1976d2", cursor: "pointer" }}
+        >
+          <span data-testid={`category-name-${category.id}`}>{category.name}</span>
+        </Link>
       </div>
 
       {hasChildren && isExpanded && (
