@@ -68,3 +68,4 @@ CI fails on Postgres
 Ensure connection strings in CI use the GitHub Actions Postgres service hostname (often localhost + mapped port, or postgres depending on config).
 If using Testcontainers, ensure Docker is available in CI runner and tests don’t require privileged mode.
 
+close issue
