@@ -38,6 +38,13 @@ public class CreateStaffHandler
         this.logger = logger;
     }
 
+    private static string SanitizeForLogging(string value)
+    {
+        return value?
+            .Replace("\r", string.Empty, StringComparison.Ordinal)
+            .Replace("\n", string.Empty, StringComparison.Ordinal);
+    }
+
     /// <summary>
     /// Handles the create staff command.
     /// </summary>
@@ -55,7 +62,7 @@ public class CreateStaffHandler
             var maskedEmail = command.Email.Length > 3
                 ? $"{command.Email[..2]}***@{command.Email.Split('@')[1]}"
                 : "***";
-            this.logger.LogWarning("Staff creation failed: email {MaskedEmail} already exists", maskedEmail);
+            this.logger.LogWarning("Staff creation failed: email {MaskedEmail} already exists", SanitizeForLogging(maskedEmail));
             throw new InvalidOperationException("Email already exists.");
         }
 
@@ -70,7 +77,7 @@ public class CreateStaffHandler
                 var maskedPhone = command.Phone.Length > 3
                     ? $"{command.Phone[..3]}***{command.Phone[^2..]}"
                     : "***";
-                this.logger.LogWarning("Staff creation failed: phone {MaskedPhone} already exists", maskedPhone);
+                this.logger.LogWarning("Staff creation failed: phone {MaskedPhone} already exists", SanitizeForLogging(maskedPhone));
                 throw new InvalidOperationException("Phone number already exists.");
             }
         }
@@ -101,7 +108,7 @@ public class CreateStaffHandler
         var maskedEmailSuccess = staffUser.Email.Length > 3
             ? $"{staffUser.Email[..2]}***@{staffUser.Email.Split('@')[1]}"
             : "***";
-        this.logger.LogInformation("Staff user created: {MaskedEmail} with role {Role}", maskedEmailSuccess, staffUser.Role);
+        this.logger.LogInformation("Staff user created: {MaskedEmail} with role {Role}", SanitizeForLogging(maskedEmailSuccess), staffUser.Role);
 
         return new CreateStaffResult(staffUser.Id, staffUser.Email, staffUser.FullName, staffUser.Role.ToString());
     }
