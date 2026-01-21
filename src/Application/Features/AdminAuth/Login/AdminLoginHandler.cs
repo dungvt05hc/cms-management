@@ -68,6 +68,9 @@ public class AdminLoginHandler
                 ? $"{staffUser.Email[..2]}***@{staffUser.Email.Split('@')[1]}"
                 : "***";
             this.logger.LogWarning("Staff login attempt failed: account inactive for user with Id {UserId} and role {Role}", staffUser.Id, staffUser.Role);
+            throw new UnauthorizedAccessException("Account is inactive.");
+        }
+
         // Verify password
         if (!this.passwordHasher.VerifyPassword(command.Password, staffUser.PasswordHash))
         {
@@ -75,6 +78,9 @@ public class AdminLoginHandler
                 ? $"{staffUser.Email[..2]}***@{staffUser.Email.Split('@')[1]}"
                 : "***";
             this.logger.LogWarning("Staff login attempt failed: invalid password for user with Id {UserId} and role {Role}", staffUser.Id, staffUser.Role);
+            throw new UnauthorizedAccessException("Invalid credentials.");
+        }
+
         // Generate JWT token with role
         var token = this.jwtTokenGenerator.GenerateStaffToken(
             staffUser.Id,
@@ -85,4 +91,10 @@ public class AdminLoginHandler
             ? $"{staffUser.Email[..2]}***@{staffUser.Email.Split('@')[1]}"
             : "***";
         this.logger.LogInformation("Staff user with Id {UserId} logged in successfully with role {Role}", staffUser.Id, staffUser.Role);
+
+        return new AdminLoginResult(
+            AccessToken: token,
+            ExpiresIn: 60,
+            Role: staffUser.Role.ToString());
+    }
 }

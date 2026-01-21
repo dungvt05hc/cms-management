@@ -38,13 +38,6 @@ public class CreateStaffHandler
         this.logger = logger;
     }
 
-    private static string SanitizeForLogging(string value)
-    {
-        return value?
-            .Replace("\r", string.Empty, StringComparison.Ordinal)
-            .Replace("\n", string.Empty, StringComparison.Ordinal);
-    }
-
     /// <summary>
     /// Handles the create staff command.
     /// </summary>
@@ -111,5 +104,12 @@ public class CreateStaffHandler
         this.logger.LogInformation("Staff user created: {MaskedEmail} with role {Role}", SanitizeForLogging(maskedEmailSuccess), staffUser.Role);
 
         return new CreateStaffResult(staffUser.Id, staffUser.Email, staffUser.FullName, staffUser.Role.ToString());
+    }
+
+    private static string? SanitizeForLogging(string? value)
+    {
+        return value?
+            .Replace("\r", string.Empty, StringComparison.Ordinal)
+            .Replace("\n", string.Empty, StringComparison.Ordinal);
     }
 }
