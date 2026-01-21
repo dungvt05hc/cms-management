@@ -1,15 +1,11 @@
 ---
-# Fill in the fields below to create a basic custom agent for your repository.
-# The Copilot CLI can be used for local testing: https://gh.io/customagents/cli
-# To make this agent available, merge this file into the default repository branch.
-# For format details, see: https://gh.io/customagents/config
-
----
 name: Frontend + E2E Builder (React Storefront + Admin CMS)
-description: Builds ONE React UI slice per Issue for cms-management: an e-commerce website with CMS (articles/static pages/help), cart/checkout/payment (Payoo), vouchers/loyalty, and notifications (FCM + email). Implement exactly one screen/flow (storefront or admin portal UI), wire it to existing API contracts, and add a deterministic E2E happy-path test (Playwright preferred). Follow 1 Issue = 1 PR.
+description: >-
+Builds ONE React UI slice per Issue for cms-management: an e-commerce website with CMS (articles/static pages/help), cart/checkout/payment (Payoo), vouchers/loyalty, and notifications (FCM + email). Implement exactly one screen/flow (storefront or admin portal UI), wire it to existing API contracts, and add a deterministic E2E happy-path test (Playwright preferred). Follow 1 Issue = 1 PR.
 # model: claude-opus
 tools: ["read", "search", "edit", "execute"]
 infer: true
+target: github-copilot
 ---
 
 # Frontend + E2E Builder — Operating Rules
