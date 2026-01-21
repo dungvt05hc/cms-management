@@ -39,11 +39,28 @@ public sealed class AuthEndpointTests : IDisposable
             {
                 builder.ConfigureServices(services =>
                 {
-                    // Remove the existing DbContext configuration
-                    var descriptor = services.SingleOrDefault(
-                        d => d.ServiceType == typeof(DbContextOptions<AppDbContext>));
+                    // Find and remove all EF Core and database-related service descriptors
+                    var descriptorsToRemove = services
+                        .Where(d => d.ServiceType == typeof(DbContextOptions<AppDbContext>) ||
+                                    d.ServiceType == typeof(DbContextOptions) ||
+                                    d.ServiceType == typeof(AppDbContext) ||
+                                    d.ServiceType == typeof(IAppDbContext) ||
+                                    (d.ServiceType.IsGenericType &&
+                                     d.ServiceType.GetGenericTypeDefinition() == typeof(DbContextOptions<>)))
+                        .ToList();
 
-                    if (descriptor != null)
+                    foreach (var descriptor in descriptorsToRemove)
+                    {
+                        services.Remove(descriptor);
+                    }
+
+                    // Remove any EF Core internal services
+                    var efCoreServices = services
+                        .Where(d => d.ServiceType.Namespace != null &&
+                                    d.ServiceType.Namespace.StartsWith("Microsoft.EntityFrameworkCore"))
+                        .ToList();
+
+                    foreach (var descriptor in efCoreServices)
                     {
                         services.Remove(descriptor);
                     }
@@ -54,6 +71,9 @@ public sealed class AuthEndpointTests : IDisposable
                     {
                         options.UseInMemoryDatabase(dbName);
                     });
+
+                    // Re-register IAppDbContext
+                    services.AddScoped<IAppDbContext>(sp => sp.GetRequiredService<AppDbContext>());
                 });
             });
 
