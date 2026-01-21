@@ -899,19 +899,19 @@
     ]
   },
   "packageFolders": {
-    "/Users/dungvt/.nuget/packages/": {}
+    "/home/runner/.nuget/packages/": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "/Users/dungvt/Projects/cms-management/src/Application/Application.csproj",
+      "projectUniqueName": "/home/runner/work/cms-management/cms-management/src/Application/Application.csproj",
       "projectName": "Application",
-      "projectPath": "/Users/dungvt/Projects/cms-management/src/Application/Application.csproj",
-      "packagesPath": "/Users/dungvt/.nuget/packages/",
-      "outputPath": "/Users/dungvt/Projects/cms-management/src/Application/obj/",
+      "projectPath": "/home/runner/work/cms-management/cms-management/src/Application/Application.csproj",
+      "packagesPath": "/home/runner/.nuget/packages/",
+      "outputPath": "/home/runner/work/cms-management/cms-management/src/Application/obj/",
       "projectStyle": "PackageReference",
       "configFilePaths": [
-        "/Users/dungvt/.nuget/NuGet/NuGet.Config"
+        "/home/runner/.nuget/NuGet/NuGet.Config"
       ],
       "originalTargetFrameworks": [
         "net9.0"
@@ -923,8 +923,8 @@
         "net9.0": {
           "targetAlias": "net9.0",
           "projectReferences": {
-            "/Users/dungvt/Projects/cms-management/src/Domain/Domain.csproj": {
-              "projectPath": "/Users/dungvt/Projects/cms-management/src/Domain/Domain.csproj"
+            "/home/runner/work/cms-management/cms-management/src/Domain/Domain.csproj": {
+              "projectPath": "/home/runner/work/cms-management/cms-management/src/Domain/Domain.csproj"
             }
           }
         }
@@ -940,7 +940,7 @@
         "auditLevel": "low",
         "auditMode": "direct"
       },
-      "SdkAnalysisLevel": "9.0.300"
+      "SdkAnalysisLevel": "10.0.100"
     },
     "frameworks": {
       "net9.0": {
@@ -977,7 +977,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "/usr/local/share/dotnet/sdk/9.0.303/PortableRuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "/usr/share/dotnet/sdk/10.0.101/PortableRuntimeIdentifierGraph.json"
       }
     }
   }

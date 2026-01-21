@@ -1,13 +1,13 @@
 {
   "version": 2,
-  "dgSpecHash": "TkggyR/1ha0=",
+  "dgSpecHash": "pEjuhuLqkRY=",
   "success": true,
-  "projectFilePath": "/Users/dungvt/Projects/cms-management/src/Infrastructure/Infrastructure.csproj",
+  "projectFilePath": "/home/runner/work/cms-management/cms-management/src/Infrastructure/Infrastructure.csproj",
   "expectedPackageFiles": [
-    "/Users/dungvt/.nuget/packages/microsoft.codeanalysis.netanalyzers/9.0.0/microsoft.codeanalysis.netanalyzers.9.0.0.nupkg.sha512",
-    "/Users/dungvt/.nuget/packages/microsoft.extensions.dependencyinjection.abstractions/10.0.2/microsoft.extensions.dependencyinjection.abstractions.10.0.2.nupkg.sha512",
-    "/Users/dungvt/.nuget/packages/stylecop.analyzers/1.2.0-beta.556/stylecop.analyzers.1.2.0-beta.556.nupkg.sha512",
-    "/Users/dungvt/.nuget/packages/stylecop.analyzers.unstable/1.2.0.556/stylecop.analyzers.unstable.1.2.0.556.nupkg.sha512"
+    "/home/runner/.nuget/packages/microsoft.codeanalysis.netanalyzers/9.0.0/microsoft.codeanalysis.netanalyzers.9.0.0.nupkg.sha512",
+    "/home/runner/.nuget/packages/microsoft.extensions.dependencyinjection.abstractions/10.0.2/microsoft.extensions.dependencyinjection.abstractions.10.0.2.nupkg.sha512",
+    "/home/runner/.nuget/packages/stylecop.analyzers/1.2.0-beta.556/stylecop.analyzers.1.2.0-beta.556.nupkg.sha512",
+    "/home/runner/.nuget/packages/stylecop.analyzers.unstable/1.2.0.556/stylecop.analyzers.unstable.1.2.0.556.nupkg.sha512"
   ],
   "logs": []
 }

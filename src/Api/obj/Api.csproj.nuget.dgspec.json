@@ -1,20 +1,20 @@
 {
   "format": 1,
   "restore": {
-    "/Users/dungvt/Projects/cms-management/src/Api/Api.csproj": {}
+    "/home/runner/work/cms-management/cms-management/src/Api/Api.csproj": {}
   },
   "projects": {
-    "/Users/dungvt/Projects/cms-management/src/Api/Api.csproj": {
+    "/home/runner/work/cms-management/cms-management/src/Api/Api.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "/Users/dungvt/Projects/cms-management/src/Api/Api.csproj",
+        "projectUniqueName": "/home/runner/work/cms-management/cms-management/src/Api/Api.csproj",
         "projectName": "Api",
-        "projectPath": "/Users/dungvt/Projects/cms-management/src/Api/Api.csproj",
-        "packagesPath": "/Users/dungvt/.nuget/packages/",
-        "outputPath": "/Users/dungvt/Projects/cms-management/src/Api/obj/",
+        "projectPath": "/home/runner/work/cms-management/cms-management/src/Api/Api.csproj",
+        "packagesPath": "/home/runner/.nuget/packages/",
+        "outputPath": "/home/runner/work/cms-management/cms-management/src/Api/obj/",
         "projectStyle": "PackageReference",
         "configFilePaths": [
-          "/Users/dungvt/.nuget/NuGet/NuGet.Config"
+          "/home/runner/.nuget/NuGet/NuGet.Config"
         ],
         "originalTargetFrameworks": [
           "net9.0"
@@ -26,11 +26,11 @@
           "net9.0": {
             "targetAlias": "net9.0",
             "projectReferences": {
-              "/Users/dungvt/Projects/cms-management/src/Application/Application.csproj": {
-                "projectPath": "/Users/dungvt/Projects/cms-management/src/Application/Application.csproj"
+              "/home/runner/work/cms-management/cms-management/src/Application/Application.csproj": {
+                "projectPath": "/home/runner/work/cms-management/cms-management/src/Application/Application.csproj"
               },
-              "/Users/dungvt/Projects/cms-management/src/Infrastructure/Infrastructure.csproj": {
-                "projectPath": "/Users/dungvt/Projects/cms-management/src/Infrastructure/Infrastructure.csproj"
+              "/home/runner/work/cms-management/cms-management/src/Infrastructure/Infrastructure.csproj": {
+                "projectPath": "/home/runner/work/cms-management/cms-management/src/Infrastructure/Infrastructure.csproj"
               }
             }
           }
@@ -46,7 +46,7 @@
           "auditLevel": "low",
           "auditMode": "direct"
         },
-        "SdkAnalysisLevel": "9.0.300"
+        "SdkAnalysisLevel": "10.0.100"
       },
       "frameworks": {
         "net9.0": {
@@ -86,21 +86,21 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "/usr/local/share/dotnet/sdk/9.0.303/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "/usr/share/dotnet/sdk/10.0.101/PortableRuntimeIdentifierGraph.json"
         }
       }
     },
-    "/Users/dungvt/Projects/cms-management/src/Application/Application.csproj": {
+    "/home/runner/work/cms-management/cms-management/src/Application/Application.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "/Users/dungvt/Projects/cms-management/src/Application/Application.csproj",
+        "projectUniqueName": "/home/runner/work/cms-management/cms-management/src/Application/Application.csproj",
         "projectName": "Application",
-        "projectPath": "/Users/dungvt/Projects/cms-management/src/Application/Application.csproj",
-        "packagesPath": "/Users/dungvt/.nuget/packages/",
-        "outputPath": "/Users/dungvt/Projects/cms-management/src/Application/obj/",
+        "projectPath": "/home/runner/work/cms-management/cms-management/src/Application/Application.csproj",
+        "packagesPath": "/home/runner/.nuget/packages/",
+        "outputPath": "/home/runner/work/cms-management/cms-management/src/Application/obj/",
         "projectStyle": "PackageReference",
         "configFilePaths": [
-          "/Users/dungvt/.nuget/NuGet/NuGet.Config"
+          "/home/runner/.nuget/NuGet/NuGet.Config"
         ],
         "originalTargetFrameworks": [
           "net9.0"
@@ -112,8 +112,8 @@
           "net9.0": {
             "targetAlias": "net9.0",
             "projectReferences": {
-              "/Users/dungvt/Projects/cms-management/src/Domain/Domain.csproj": {
-                "projectPath": "/Users/dungvt/Projects/cms-management/src/Domain/Domain.csproj"
+              "/home/runner/work/cms-management/cms-management/src/Domain/Domain.csproj": {
+                "projectPath": "/home/runner/work/cms-management/cms-management/src/Domain/Domain.csproj"
               }
             }
           }
@@ -129,7 +129,7 @@
           "auditLevel": "low",
           "auditMode": "direct"
         },
-        "SdkAnalysisLevel": "9.0.300"
+        "SdkAnalysisLevel": "10.0.100"
       },
       "frameworks": {
         "net9.0": {
@@ -166,21 +166,21 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "/usr/local/share/dotnet/sdk/9.0.303/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "/usr/share/dotnet/sdk/10.0.101/PortableRuntimeIdentifierGraph.json"
         }
       }
     },
-    "/Users/dungvt/Projects/cms-management/src/Domain/Domain.csproj": {
+    "/home/runner/work/cms-management/cms-management/src/Domain/Domain.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "/Users/dungvt/Projects/cms-management/src/Domain/Domain.csproj",
+        "projectUniqueName": "/home/runner/work/cms-management/cms-management/src/Domain/Domain.csproj",
         "projectName": "Domain",
-        "projectPath": "/Users/dungvt/Projects/cms-management/src/Domain/Domain.csproj",
-        "packagesPath": "/Users/dungvt/.nuget/packages/",
-        "outputPath": "/Users/dungvt/Projects/cms-management/src/Domain/obj/",
+        "projectPath": "/home/runner/work/cms-management/cms-management/src/Domain/Domain.csproj",
+        "packagesPath": "/home/runner/.nuget/packages/",
+        "outputPath": "/home/runner/work/cms-management/cms-management/src/Domain/obj/",
         "projectStyle": "PackageReference",
         "configFilePaths": [
-          "/Users/dungvt/.nuget/NuGet/NuGet.Config"
+          "/home/runner/.nuget/NuGet/NuGet.Config"
         ],
         "originalTargetFrameworks": [
           "net9.0"
@@ -205,7 +205,7 @@
           "auditLevel": "low",
           "auditMode": "direct"
         },
-        "SdkAnalysisLevel": "9.0.300"
+        "SdkAnalysisLevel": "10.0.100"
       },
       "frameworks": {
         "net9.0": {
@@ -238,21 +238,21 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "/usr/local/share/dotnet/sdk/9.0.303/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "/usr/share/dotnet/sdk/10.0.101/PortableRuntimeIdentifierGraph.json"
         }
       }
     },
-    "/Users/dungvt/Projects/cms-management/src/Infrastructure/Infrastructure.csproj": {
+    "/home/runner/work/cms-management/cms-management/src/Infrastructure/Infrastructure.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "/Users/dungvt/Projects/cms-management/src/Infrastructure/Infrastructure.csproj",
+        "projectUniqueName": "/home/runner/work/cms-management/cms-management/src/Infrastructure/Infrastructure.csproj",
         "projectName": "Infrastructure",
-        "projectPath": "/Users/dungvt/Projects/cms-management/src/Infrastructure/Infrastructure.csproj",
-        "packagesPath": "/Users/dungvt/.nuget/packages/",
-        "outputPath": "/Users/dungvt/Projects/cms-management/src/Infrastructure/obj/",
+        "projectPath": "/home/runner/work/cms-management/cms-management/src/Infrastructure/Infrastructure.csproj",
+        "packagesPath": "/home/runner/.nuget/packages/",
+        "outputPath": "/home/runner/work/cms-management/cms-management/src/Infrastructure/obj/",
         "projectStyle": "PackageReference",
         "configFilePaths": [
-          "/Users/dungvt/.nuget/NuGet/NuGet.Config"
+          "/home/runner/.nuget/NuGet/NuGet.Config"
         ],
         "originalTargetFrameworks": [
           "net9.0"
@@ -264,8 +264,8 @@
           "net9.0": {
             "targetAlias": "net9.0",
             "projectReferences": {
-              "/Users/dungvt/Projects/cms-management/src/Application/Application.csproj": {
-                "projectPath": "/Users/dungvt/Projects/cms-management/src/Application/Application.csproj"
+              "/home/runner/work/cms-management/cms-management/src/Application/Application.csproj": {
+                "projectPath": "/home/runner/work/cms-management/cms-management/src/Application/Application.csproj"
               }
             }
           }
@@ -281,7 +281,7 @@
           "auditLevel": "low",
           "auditMode": "direct"
         },
-        "SdkAnalysisLevel": "9.0.300"
+        "SdkAnalysisLevel": "10.0.100"
       },
       "frameworks": {
         "net9.0": {
@@ -314,7 +314,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "/usr/local/share/dotnet/sdk/9.0.303/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "/usr/share/dotnet/sdk/10.0.101/PortableRuntimeIdentifierGraph.json"
         }
       }
     }
