@@ -212,7 +212,8 @@ export default function ProductList({ categorySlug, categoryId, initialSort }: P
 
             {/* Actions */}
             <div style={{ display: "flex", gap: 8, marginTop: "auto" }}>
-              <button
+              <a
+                href={`/p/${product.slug}`}
                 data-testid={`product-view-${index}`}
                 style={{
                   flex: 1,
@@ -223,10 +224,13 @@ export default function ProductList({ categorySlug, categoryId, initialSort }: P
                   borderRadius: 4,
                   cursor: "pointer",
                   fontWeight: 500,
+                  textAlign: "center",
+                  textDecoration: "none",
+                  display: "block",
                 }}
               >
                 View
-              </button>
+              </a>
               <button
                 data-testid={`product-buy-${index}`}
                 style={{
