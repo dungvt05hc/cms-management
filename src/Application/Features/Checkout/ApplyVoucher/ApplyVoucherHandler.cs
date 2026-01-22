@@ -149,8 +149,6 @@ public class ApplyVoucherHandler
             ShippingFee = shippingFee,
             ShippingDiscount = shippingDiscount,
             Total = total,
-            DiscountVoucherCode = discountVoucherCode,
-            ShippingVoucherCode = shippingVoucherCode,
         };
     }
 }
