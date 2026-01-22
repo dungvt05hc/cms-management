@@ -41,13 +41,17 @@ public class GetProductBySlugHandler
             .Include(p => p.Variants)
             .FirstOrDefaultAsync(p => p.Slug == query.Slug && p.IsActive, cancellationToken);
 
+        var safeSlug = query.Slug?
+            .Replace("\r", string.Empty)
+            .Replace("\n", string.Empty);
+
         if (product == null)
         {
-            this.logger.LogInformation("Product not found for slug: {Slug}", query.Slug);
+            this.logger.LogInformation("Product not found for slug: {Slug}", safeSlug);
             return null;
         }
 
-        this.logger.LogInformation("Retrieved product by slug: {Slug}", query.Slug);
+        this.logger.LogInformation("Retrieved product by slug: {Slug}", safeSlug);
 
         return new ProductDto(
             product.Id,
