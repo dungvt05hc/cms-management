@@ -45,8 +45,12 @@ public static class DependencyInjection
         // Email
         services.AddScoped<IEmailSender, EmailSender>();
 
-        // Super Admin Bootstrap
+        // Shipping
+        services.AddScoped<IShippingQuoteProvider, StubShippingQuoteProvider>();
+
+        // Bootstrap services
         services.AddScoped<SuperAdminBootstrapService>();
+        services.AddScoped<ShippingBootstrapService>();
 
         return services;
     }

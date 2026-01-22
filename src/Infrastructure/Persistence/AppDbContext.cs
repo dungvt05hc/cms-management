@@ -68,6 +68,21 @@ public class AppDbContext : DbContext, IAppDbContext
     public DbSet<Address> Addresses { get; set; } = null!;
 
     /// <summary>
+    /// Gets or sets the ShippingMethods DbSet.
+    /// </summary>
+    public DbSet<ShippingMethod> ShippingMethods { get; set; } = null!;
+
+    /// <summary>
+    /// Gets or sets the ShippingCarriers DbSet.
+    /// </summary>
+    public DbSet<ShippingCarrier> ShippingCarriers { get; set; } = null!;
+
+    /// <summary>
+    /// Gets or sets the ShippingConfigs DbSet.
+    /// </summary>
+    public DbSet<ShippingConfig> ShippingConfigs { get; set; } = null!;
+
+    /// <summary>
     /// Configures the database schema.
     /// </summary>
     /// <param name="modelBuilder">The model builder.</param>
@@ -240,6 +255,51 @@ public class AppDbContext : DbContext, IAppDbContext
                 .WithMany()
                 .HasForeignKey(e => e.UserId)
                 .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<ShippingMethod>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.HasIndex(e => e.Code).IsUnique();
+
+            entity.Property(e => e.Code).IsRequired().HasMaxLength(50);
+            entity.Property(e => e.Name).IsRequired().HasMaxLength(256);
+            entity.Property(e => e.Description).HasMaxLength(1000);
+            entity.Property(e => e.IsActive).IsRequired();
+            entity.Property(e => e.CreatedAt).IsRequired();
+            entity.Property(e => e.UpdatedAt).IsRequired();
+        });
+
+        modelBuilder.Entity<ShippingCarrier>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.HasIndex(e => new { e.ShippingMethodId, e.Code }).IsUnique();
+            entity.HasIndex(e => e.ShippingMethodId);
+
+            entity.Property(e => e.Code).IsRequired().HasMaxLength(50);
+            entity.Property(e => e.Name).IsRequired().HasMaxLength(256);
+            entity.Property(e => e.Description).HasMaxLength(1000);
+            entity.Property(e => e.SupportsCOD).IsRequired();
+            entity.Property(e => e.IsActive).IsRequired();
+            entity.Property(e => e.CreatedAt).IsRequired();
+            entity.Property(e => e.UpdatedAt).IsRequired();
+
+            entity.HasOne(e => e.ShippingMethod)
+                .WithMany(e => e.Carriers)
+                .HasForeignKey(e => e.ShippingMethodId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<ShippingConfig>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.HasIndex(e => e.Key).IsUnique();
+
+            entity.Property(e => e.Key).IsRequired().HasMaxLength(100);
+            entity.Property(e => e.Value).IsRequired().HasMaxLength(1000);
+            entity.Property(e => e.Description).HasMaxLength(1000);
+            entity.Property(e => e.CreatedAt).IsRequired();
+            entity.Property(e => e.UpdatedAt).IsRequired();
         });
     }
 }

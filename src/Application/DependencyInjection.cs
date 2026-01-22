@@ -90,6 +90,11 @@ public static class DependencyInjection
         services.AddScoped<DeleteAddressHandler>();
         services.AddScoped<SetDefaultAddressHandler>();
 
+        // Register shipping handlers
+        services.AddScoped<Application.Features.Shipping.GetShippingMethods.GetShippingMethodsHandler>();
+        services.AddScoped<Application.Features.Shipping.GetShippingQuote.GetShippingQuoteHandler>();
+        services.AddScoped<Application.Features.Shipping.UpdateShippingConfig.UpdateShippingConfigHandler>();
+
         // Register validators
         services.AddValidatorsFromAssemblyContaining<RegisterValidator>();
 
