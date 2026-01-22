@@ -125,9 +125,13 @@ public class ApplyVoucherHandler
             shippingDiscount = Math.Min(shippingVoucher.DiscountAmount, shippingFee);
             shippingVoucherCode = shippingVoucher.Code;
 
+            var maskedShippingVoucherCode = string.IsNullOrEmpty(shippingVoucherCode)
+                ? string.Empty
+                : new string('*', Math.Max(0, shippingVoucherCode.Length - 4)) + shippingVoucherCode[^Math.Min(4, shippingVoucherCode.Length)..];
+
             this.logger.LogInformation(
                 "Applied shipping voucher {VoucherCode} with discount {ShippingDiscount} (max {ShippingFee}) for user {UserId}",
-                shippingVoucherCode,
+                maskedShippingVoucherCode,
                 shippingDiscount,
                 shippingFee,
                 command.UserId);
