@@ -118,7 +118,7 @@ public class AdminProductsController : ControllerBase
         [FromQuery] int pageSize = 10,
         CancellationToken cancellationToken = default)
     {
-        var query = new GetProductsQuery(categoryId, q, featured, page, pageSize);
+        var query = new GetProductsQuery(categoryId, null, q, featured, null, null, null, page, pageSize);
         var result = await this.getProductsHandler.Handle(query, cancellationToken);
         return this.Ok(result);
     }

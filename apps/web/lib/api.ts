@@ -37,6 +37,22 @@ export interface PagedResult<T> {
   pageSize: number;
 }
 
+export interface CursorPagedResult<T> {
+  items: T[];
+  nextCursor: string | null;
+  hasMore: boolean;
+}
+
+export interface GetProductsOptions {
+  category?: string;
+  categoryId?: string;
+  q?: string;
+  featured?: boolean;
+  sort?: "priceAsc" | "priceDesc";
+  cursor?: string;
+  limit?: number;
+}
+
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
 
 export async function getCategoryTree(): Promise<CategoryTreeNode[]> {
@@ -71,3 +87,30 @@ export async function getFeaturedProducts(limit: number = 10): Promise<Product[]
   const result: PagedResult<Product> = await response.json();
   return result.items;
 }
+
+export async function getProducts(options: GetProductsOptions): Promise<CursorPagedResult<Product>> {
+  const params = new URLSearchParams();
+
+  if (options.category) params.append("category", options.category);
+  if (options.categoryId) params.append("categoryId", options.categoryId);
+  if (options.q) params.append("q", options.q);
+  if (options.featured !== undefined) params.append("featured", options.featured.toString());
+  if (options.sort) params.append("sort", options.sort);
+  if (options.cursor) params.append("cursor", options.cursor);
+  if (options.limit) params.append("limit", options.limit.toString());
+
+  const response = await fetch(`${API_BASE_URL}/products?${params.toString()}`, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    cache: "no-store",
+  });
+
+  if (!response.ok) {
+    throw new Error("Failed to fetch products");
+  }
+
+  return response.json();
+}
+
