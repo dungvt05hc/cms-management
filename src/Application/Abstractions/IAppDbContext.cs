@@ -53,6 +53,11 @@ public interface IAppDbContext
     DbSet<CartItem> CartItems { get; }
 
     /// <summary>
+    /// Gets the Addresses DbSet.
+    /// </summary>
+    DbSet<Address> Addresses { get; }
+
+    /// <summary>
     /// Saves all changes made in this context to the database.
     /// </summary>
     /// <param name="cancellationToken">A cancellation token.</param>

@@ -2,6 +2,11 @@
 // Copyright (c) CMS Management. All rights reserved.
 // </copyright>
 
+using Application.Features.Addresses.CreateAddress;
+using Application.Features.Addresses.DeleteAddress;
+using Application.Features.Addresses.GetAddresses;
+using Application.Features.Addresses.SetDefaultAddress;
+using Application.Features.Addresses.UpdateAddress;
 using Application.Features.AdminAuth.Login;
 using Application.Features.Auth.ForgotPassword;
 using Application.Features.Auth.Login;
@@ -77,6 +82,13 @@ public static class DependencyInjection
         services.AddScoped<AddCartItemHandler>();
         services.AddScoped<UpdateCartItemHandler>();
         services.AddScoped<DeleteCartItemHandler>();
+
+        // Register address handlers
+        services.AddScoped<GetAddressesHandler>();
+        services.AddScoped<CreateAddressHandler>();
+        services.AddScoped<UpdateAddressHandler>();
+        services.AddScoped<DeleteAddressHandler>();
+        services.AddScoped<SetDefaultAddressHandler>();
 
         // Register validators
         services.AddValidatorsFromAssemblyContaining<RegisterValidator>();
