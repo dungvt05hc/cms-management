@@ -15,7 +15,9 @@ using Application.Features.Categories.UpdateCategory;
 using Application.Features.Products.CreateProduct;
 using Application.Features.Products.DeleteProduct;
 using Application.Features.Products.GetProductById;
+using Application.Features.Products.GetProductBySlug;
 using Application.Features.Products.GetProducts;
+using Application.Features.Products.GetProductSuggestions;
 using Application.Features.Products.UpdateProduct;
 using Application.Features.Staff.CreateStaff;
 using Application.Features.Users.GetProfile;
@@ -59,6 +61,8 @@ public static class DependencyInjection
         services.AddScoped<DeleteProductHandler>();
         services.AddScoped<GetProductsHandler>();
         services.AddScoped<GetProductByIdHandler>();
+        services.AddScoped<GetProductBySlugHandler>();
+        services.AddScoped<GetProductSuggestionsHandler>();
 
         // Register validators
         services.AddValidatorsFromAssemblyContaining<RegisterValidator>();

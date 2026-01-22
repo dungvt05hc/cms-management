@@ -3,7 +3,9 @@
 // </copyright>
 
 using Application.Features.Products;
+using Application.Features.Products.GetProductBySlug;
 using Application.Features.Products.GetProducts;
+using Application.Features.Products.GetProductSuggestions;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Api.Controllers;
@@ -16,18 +18,26 @@ namespace Api.Controllers;
 public class ProductsController : ControllerBase
 {
     private readonly GetProductsHandler getProductsHandler;
+    private readonly GetProductBySlugHandler getProductBySlugHandler;
+    private readonly GetProductSuggestionsHandler getProductSuggestionsHandler;
     private readonly ILogger<ProductsController> logger;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="ProductsController"/> class.
     /// </summary>
     /// <param name="getProductsHandler">The get products handler.</param>
+    /// <param name="getProductBySlugHandler">The get product by slug handler.</param>
+    /// <param name="getProductSuggestionsHandler">The get product suggestions handler.</param>
     /// <param name="logger">The logger.</param>
     public ProductsController(
         GetProductsHandler getProductsHandler,
+        GetProductBySlugHandler getProductBySlugHandler,
+        GetProductSuggestionsHandler getProductSuggestionsHandler,
         ILogger<ProductsController> logger)
     {
         this.getProductsHandler = getProductsHandler;
+        this.getProductBySlugHandler = getProductBySlugHandler;
+        this.getProductSuggestionsHandler = getProductSuggestionsHandler;
         this.logger = logger;
     }
 
@@ -98,5 +108,49 @@ public class ProductsController : ControllerBase
         // Fall back to offset pagination for backward compatibility
         var legacyResult = await this.getProductsHandler.Handle(query, cancellationToken);
         return this.Ok(legacyResult);
+    }
+
+    /// <summary>
+    /// Get product by slug (Public/Anonymous).
+    /// </summary>
+    /// <param name="slug">The product slug.</param>
+    /// <param name="cancellationToken">Cancellation token.</param>
+    /// <returns>The product details.</returns>
+    [HttpGet("{slug}")]
+    [ProducesResponseType(typeof(ProductDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> GetProductBySlug(
+        string slug,
+        CancellationToken cancellationToken = default)
+    {
+        var query = new GetProductBySlugQuery(slug);
+        var result = await this.getProductBySlugHandler.Handle(query, cancellationToken);
+
+        if (result == null)
+        {
+            return this.NotFound(new { message = "Product not found" });
+        }
+
+        return this.Ok(result);
+    }
+
+    /// <summary>
+    /// Get product suggestions by slug (same category, Public/Anonymous).
+    /// </summary>
+    /// <param name="slug">The product slug.</param>
+    /// <param name="limit">Maximum number of suggestions (default 4).</param>
+    /// <param name="cancellationToken">Cancellation token.</param>
+    /// <returns>A list of suggested products.</returns>
+    [HttpGet("{slug}/suggestions")]
+    [ProducesResponseType(typeof(List<ProductDto>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetProductSuggestions(
+        string slug,
+        [FromQuery] int limit = 4,
+        CancellationToken cancellationToken = default)
+    {
+        var query = new GetProductSuggestionsQuery(slug, limit);
+        var result = await this.getProductSuggestionsHandler.Handle(query, cancellationToken);
+
+        return this.Ok(result);
     }
 }

@@ -212,6 +212,186 @@ public sealed class ProductsEndpointTests : IDisposable
     }
 
     /// <summary>
+    /// Tests that getting a product by slug returns the product details.
+    /// </summary>
+    /// <returns>A task representing the asynchronous operation.</returns>
+    [Fact]
+    public async Task GetProductBySlug_ValidSlug_ReturnsProduct()
+    {
+        // Arrange: Create admin token and add a product
+        var token = await this.GetAdminTokenAsync();
+        this.client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+        var createCommand = new CreateProductCommand(
+            "Test Product By Slug",
+            "test-product-by-slug",
+            "Test product description",
+            null,
+            null,
+            null,
+            null,
+            true,
+            false,
+            new List<CreateProductVariantDto>
+            {
+                new("SKU-SLUG-001", "Variant 1", 99.99m, 10),
+                new("SKU-SLUG-002", "Variant 2", 149.99m, 5),
+            });
+
+        await this.client.PostAsJsonAsync("/admin/products", createCommand);
+
+        // Remove auth header to test anonymous access
+        this.client.DefaultRequestHeaders.Authorization = null;
+
+        // Act: Get product by slug
+        var response = await this.client.GetAsync("/products/test-product-by-slug");
+
+        // Assert
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        var result = await response.Content.ReadFromJsonAsync<ProductDto>();
+        Assert.NotNull(result);
+        Assert.Equal("Test Product By Slug", result.Name);
+        Assert.Equal("test-product-by-slug", result.Slug);
+        Assert.Equal(2, result.Variants.Count);
+    }
+
+    /// <summary>
+    /// Tests that getting a product by invalid slug returns 404.
+    /// </summary>
+    /// <returns>A task representing the asynchronous operation.</returns>
+    [Fact]
+    public async Task GetProductBySlug_InvalidSlug_Returns404()
+    {
+        // Act: Get product by invalid slug
+        var response = await this.client.GetAsync("/products/non-existent-slug");
+
+        // Assert
+        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+    }
+
+    /// <summary>
+    /// Tests that getting product suggestions returns products from the same category.
+    /// </summary>
+    /// <returns>A task representing the asynchronous operation.</returns>
+    [Fact]
+    public async Task GetProductSuggestions_ValidSlug_ReturnsSuggestions()
+    {
+        // Arrange: Create admin token, category, and multiple products in the same category
+        var token = await this.GetAdminTokenAsync();
+        this.client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+        // Create a category first
+        var scope = this.factory.Services.CreateScope();
+        var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+        var dateTime = scope.ServiceProvider.GetRequiredService<IDateTime>();
+
+        var category = new Domain.Entities.Category
+        {
+            Id = Guid.NewGuid(),
+            Name = "Electronics",
+            CreatedAt = dateTime.UtcNow,
+            UpdatedAt = dateTime.UtcNow,
+        };
+
+        dbContext.Categories.Add(category);
+        await dbContext.SaveChangesAsync();
+
+        // Create main product
+        var mainProduct = new CreateProductCommand(
+            "Main Product",
+            "main-product",
+            "Main product description",
+            category.Id,
+            null,
+            null,
+            null,
+            true,
+            false,
+            new List<CreateProductVariantDto>
+            {
+                new("SKU-MAIN-001", "Variant 1", 199.99m, 10),
+            });
+
+        await this.client.PostAsJsonAsync("/admin/products", mainProduct);
+
+        // Create suggested products in the same category
+        for (int i = 1; i <= 3; i++)
+        {
+            var suggestedProduct = new CreateProductCommand(
+                $"Suggested Product {i}",
+                $"suggested-product-{i}",
+                $"Suggested product {i} description",
+                category.Id,
+                null,
+                null,
+                null,
+                true,
+                false,
+                new List<CreateProductVariantDto>
+                {
+                    new($"SKU-SUGG-{i:D3}", "Variant 1", 99.99m + i, 10),
+                });
+
+            await this.client.PostAsJsonAsync("/admin/products", suggestedProduct);
+        }
+
+        // Remove auth header to test anonymous access
+        this.client.DefaultRequestHeaders.Authorization = null;
+
+        // Act: Get product suggestions
+        var response = await this.client.GetAsync("/products/main-product/suggestions?limit=4");
+
+        // Assert
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        var result = await response.Content.ReadFromJsonAsync<List<ProductDto>>();
+        Assert.NotNull(result);
+        Assert.Equal(3, result.Count);
+        Assert.All(result, p => Assert.Equal(category.Id, p.CategoryId));
+        Assert.DoesNotContain(result, p => p.Slug == "main-product");
+    }
+
+    /// <summary>
+    /// Tests that getting suggestions for product with no category returns empty list.
+    /// </summary>
+    /// <returns>A task representing the asynchronous operation.</returns>
+    [Fact]
+    public async Task GetProductSuggestions_ProductWithNoCategory_ReturnsEmpty()
+    {
+        // Arrange: Create admin token and product without category
+        var token = await this.GetAdminTokenAsync();
+        this.client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+        var createCommand = new CreateProductCommand(
+            "Product Without Category",
+            "product-without-category",
+            "Product without category description",
+            null,
+            null,
+            null,
+            null,
+            true,
+            false,
+            new List<CreateProductVariantDto>
+            {
+                new("SKU-NO-CAT-001", "Variant 1", 99.99m, 10),
+            });
+
+        await this.client.PostAsJsonAsync("/admin/products", createCommand);
+
+        // Remove auth header to test anonymous access
+        this.client.DefaultRequestHeaders.Authorization = null;
+
+        // Act: Get product suggestions
+        var response = await this.client.GetAsync("/products/product-without-category/suggestions");
+
+        // Assert
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        var result = await response.Content.ReadFromJsonAsync<List<ProductDto>>();
+        Assert.NotNull(result);
+        Assert.Empty(result);
+    }
+
+    /// <summary>
     /// Disposes the test resources.
     /// </summary>
     public void Dispose()
