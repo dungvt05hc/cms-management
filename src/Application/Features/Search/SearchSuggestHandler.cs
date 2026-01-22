@@ -59,7 +59,12 @@ public class SearchSuggestHandler
 
         var searchTerm = query.Q.ToLower();
 
-        this.logger.LogInformation("Searching for suggestions with query: {Query}", query.Q.Substring(0, Math.Min(query.Q.Length, 50)));
+        var truncatedQuery = query.Q.Substring(0, Math.Min(query.Q.Length, 50));
+        var safeQueryForLog = truncatedQuery
+            .Replace("\r", string.Empty)
+            .Replace("\n", string.Empty);
+
+        this.logger.LogInformation("Searching for suggestions with query: {Query}", safeQueryForLog);
 
         var suggestions = await this.dbContext.Products
             .Where(p => p.IsActive &&
