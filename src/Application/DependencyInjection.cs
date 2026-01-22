@@ -19,6 +19,7 @@ using Application.Features.Products.GetProductBySlug;
 using Application.Features.Products.GetProducts;
 using Application.Features.Products.GetProductSuggestions;
 using Application.Features.Products.UpdateProduct;
+using Application.Features.Search;
 using Application.Features.Staff.CreateStaff;
 using Application.Features.Users.GetProfile;
 using Application.Health;
@@ -63,6 +64,9 @@ public static class DependencyInjection
         services.AddScoped<GetProductByIdHandler>();
         services.AddScoped<GetProductBySlugHandler>();
         services.AddScoped<GetProductSuggestionsHandler>();
+
+        // Register search handlers
+        services.AddScoped<SearchSuggestHandler>();
 
         // Register validators
         services.AddValidatorsFromAssemblyContaining<RegisterValidator>();
