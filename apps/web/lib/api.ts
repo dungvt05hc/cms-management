@@ -149,3 +149,30 @@ export async function getProductSuggestions(slug: string, limit: number = 4): Pr
   return response.json();
 }
 
+export interface SearchSuggestion {
+  id: string;
+  name: string;
+  slug: string;
+  images: string | null;
+}
+
+export async function searchSuggestions(q: string, limit: number = 10): Promise<SearchSuggestion[]> {
+  const params = new URLSearchParams();
+  if (q) params.append("q", q);
+  if (limit) params.append("limit", limit.toString());
+
+  const response = await fetch(`${API_BASE_URL}/search/suggest?${params.toString()}`, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    cache: "no-store",
+  });
+
+  if (!response.ok) {
+    throw new Error("Failed to fetch search suggestions");
+  }
+
+  return response.json();
+}
+
