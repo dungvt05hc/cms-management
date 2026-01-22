@@ -95,6 +95,9 @@ public static class DependencyInjection
         services.AddScoped<Application.Features.Shipping.GetShippingQuote.GetShippingQuoteHandler>();
         services.AddScoped<Application.Features.Shipping.UpdateShippingConfig.UpdateShippingConfigHandler>();
 
+        // Register checkout handlers
+        services.AddScoped<Application.Features.Checkout.ApplyVoucher.ApplyVoucherHandler>();
+
         // Register validators
         services.AddValidatorsFromAssemblyContaining<RegisterValidator>();
 

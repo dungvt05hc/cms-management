@@ -73,6 +73,11 @@ public interface IAppDbContext
     DbSet<ShippingConfig> ShippingConfigs { get; }
 
     /// <summary>
+    /// Gets the Vouchers DbSet.
+    /// </summary>
+    DbSet<Voucher> Vouchers { get; }
+
+    /// <summary>
     /// Saves all changes made in this context to the database.
     /// </summary>
     /// <param name="cancellationToken">A cancellation token.</param>
