@@ -38,6 +38,9 @@ public class GetProductSuggestionsHandler
     /// <returns>A list of product DTOs (suggestions).</returns>
     public async Task<List<ProductDto>> Handle(GetProductSuggestionsQuery query, CancellationToken cancellationToken)
     {
+        // Sanitize slug before logging to prevent log forging
+        var safeSlug = query.Slug?.Replace("\r", string.Empty).Replace("\n", string.Empty);
+
         // First, find the product to get its category
         var product = await this.dbContext.Products
             .AsNoTracking()
@@ -45,14 +48,14 @@ public class GetProductSuggestionsHandler
 
         if (product == null)
         {
-            this.logger.LogInformation("Product not found for suggestions: {Slug}", query.Slug);
+            this.logger.LogInformation("Product not found for suggestions: {Slug}", safeSlug);
             return new List<ProductDto>();
         }
 
         // If product has no category, return empty list
         if (product.CategoryId == null)
         {
-            this.logger.LogInformation("Product has no category for suggestions: {Slug}", query.Slug);
+            this.logger.LogInformation("Product has no category for suggestions: {Slug}", safeSlug);
             return new List<ProductDto>();
         }
 
@@ -64,7 +67,7 @@ public class GetProductSuggestionsHandler
             .Take(query.Limit)
             .ToListAsync(cancellationToken);
 
-        this.logger.LogInformation("Retrieved {Count} suggestions for product: {Slug}", suggestions.Count, query.Slug);
+        this.logger.LogInformation("Retrieved {Count} suggestions for product: {Slug}", suggestions.Count, safeSlug);
 
         return suggestions.Select(p => new ProductDto(
             p.Id,
