@@ -1,12 +1,17 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { getCart, updateCartItem, deleteCartItem, Cart, CartItem } from "@/lib/api";
+import { getCart, updateCartItem, deleteCartItem, applyVoucher, Cart, CartItem, CheckoutTotals } from "@/lib/api";
 
 export default function CartPage() {
   const [cart, setCart] = useState<Cart | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [discountCode, setDiscountCode] = useState("");
+  const [shippingCode, setShippingCode] = useState("");
+  const [totals, setTotals] = useState<CheckoutTotals | null>(null);
+  const [voucherError, setVoucherError] = useState<string | null>(null);
+  const [applyingVoucher, setApplyingVoucher] = useState(false);
 
   useEffect(() => {
     loadCart();
@@ -60,9 +65,40 @@ export default function CartPage() {
       if (!token) return;
       await deleteCartItem(token, itemId);
       await loadCart();
+      // Reset totals when cart changes
+      setTotals(null);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to delete item");
     }
+  };
+
+  const handleApplyVoucher = async () => {
+    setApplyingVoucher(true);
+    setVoucherError(null);
+    try {
+      const token = localStorage.getItem("authToken");
+      if (!token) {
+        setVoucherError("Please log in to apply vouchers");
+        return;
+      }
+      const result = await applyVoucher(
+        token,
+        discountCode || undefined,
+        shippingCode || undefined
+      );
+      setTotals(result);
+    } catch (err) {
+      setVoucherError(err instanceof Error ? err.message : "Failed to apply voucher");
+    } finally {
+      setApplyingVoucher(false);
+    }
+  };
+
+  const handleClearVouchers = () => {
+    setDiscountCode("");
+    setShippingCode("");
+    setTotals(null);
+    setVoucherError(null);
   };
 
   if (loading) {
@@ -191,6 +227,106 @@ export default function CartPage() {
           </tbody>
         </table>
 
+        {/* Voucher Application Section */}
+        <div
+          style={{
+            marginTop: 24,
+            padding: 16,
+            backgroundColor: "#fff",
+            border: "1px solid #ddd",
+            borderRadius: 4,
+          }}
+          data-testid="voucher-section"
+        >
+          <h3 style={{ marginTop: 0, marginBottom: 16 }}>Apply Vouchers</h3>
+          
+          <div style={{ marginBottom: 12 }}>
+            <label style={{ display: "block", marginBottom: 4, fontSize: 14 }}>
+              Discount Code:
+            </label>
+            <input
+              type="text"
+              value={discountCode}
+              onChange={(e) => setDiscountCode(e.target.value)}
+              placeholder="Enter discount code"
+              data-testid="discount-code-input"
+              style={{
+                padding: "8px 12px",
+                border: "1px solid #ddd",
+                borderRadius: 4,
+                width: "100%",
+                maxWidth: 300,
+              }}
+            />
+          </div>
+
+          <div style={{ marginBottom: 12 }}>
+            <label style={{ display: "block", marginBottom: 4, fontSize: 14 }}>
+              Shipping Code:
+            </label>
+            <input
+              type="text"
+              value={shippingCode}
+              onChange={(e) => setShippingCode(e.target.value)}
+              placeholder="Enter shipping code"
+              data-testid="shipping-code-input"
+              style={{
+                padding: "8px 12px",
+                border: "1px solid #ddd",
+                borderRadius: 4,
+                width: "100%",
+                maxWidth: 300,
+              }}
+            />
+          </div>
+
+          <div style={{ display: "flex", gap: 12, marginBottom: 12 }}>
+            <button
+              onClick={handleApplyVoucher}
+              disabled={applyingVoucher || (!discountCode && !shippingCode)}
+              data-testid="apply-voucher-button"
+              style={{
+                padding: "8px 16px",
+                backgroundColor: "#28a745",
+                color: "white",
+                border: "none",
+                borderRadius: 4,
+                cursor: applyingVoucher || (!discountCode && !shippingCode) ? "not-allowed" : "pointer",
+                opacity: applyingVoucher || (!discountCode && !shippingCode) ? 0.6 : 1,
+              }}
+            >
+              {applyingVoucher ? "Applying..." : "Apply Vouchers"}
+            </button>
+
+            {totals && (
+              <button
+                onClick={handleClearVouchers}
+                data-testid="clear-voucher-button"
+                style={{
+                  padding: "8px 16px",
+                  backgroundColor: "#6c757d",
+                  color: "white",
+                  border: "none",
+                  borderRadius: 4,
+                  cursor: "pointer",
+                }}
+              >
+                Clear Vouchers
+              </button>
+            )}
+          </div>
+
+          {voucherError && (
+            <div
+              style={{ color: "red", fontSize: 14, marginTop: 8 }}
+              data-testid="voucher-error"
+            >
+              {voucherError}
+            </div>
+          )}
+        </div>
+
+        {/* Totals Section */}
         <div
           style={{
             marginTop: 24,
@@ -199,11 +335,51 @@ export default function CartPage() {
             border: "1px solid #ddd",
             borderRadius: 4,
           }}
+          data-testid="totals-section"
         >
-          <div style={{ display: "flex", justifyContent: "space-between", fontSize: 18 }}>
-            <strong data-testid="cart-subtotal-label">Subtotal (Selected Items):</strong>
-            <strong data-testid="cart-subtotal">${cart.subtotal.toFixed(2)}</strong>
-          </div>
+          {totals ? (
+            <>
+              <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 8 }}>
+                <span data-testid="totals-subtotal-label">Subtotal (Selected):</span>
+                <span data-testid="totals-subtotal">${totals.subtotal.toFixed(2)}</span>
+              </div>
+              
+              {totals.discountAmount > 0 && (
+                <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 8, color: "#28a745" }}>
+                  <span data-testid="totals-discount-label">
+                    Discount ({totals.discountVoucherCode}):
+                  </span>
+                  <span data-testid="totals-discount">-${totals.discountAmount.toFixed(2)}</span>
+                </div>
+              )}
+
+              <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 8 }}>
+                <span data-testid="totals-shipping-label">Shipping Fee:</span>
+                <span data-testid="totals-shipping">${totals.shippingFee.toFixed(2)}</span>
+              </div>
+
+              {totals.shippingDiscount > 0 && (
+                <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 8, color: "#28a745" }}>
+                  <span data-testid="totals-shipping-discount-label">
+                    Shipping Discount ({totals.shippingVoucherCode}):
+                  </span>
+                  <span data-testid="totals-shipping-discount">-${totals.shippingDiscount.toFixed(2)}</span>
+                </div>
+              )}
+
+              <div style={{ borderTop: "2px solid #ddd", marginTop: 12, paddingTop: 12 }}>
+                <div style={{ display: "flex", justifyContent: "space-between", fontSize: 18 }}>
+                  <strong data-testid="totals-total-label">Total:</strong>
+                  <strong data-testid="totals-total">${totals.total.toFixed(2)}</strong>
+                </div>
+              </div>
+            </>
+          ) : (
+            <div style={{ display: "flex", justifyContent: "space-between", fontSize: 18 }}>
+              <strong data-testid="cart-subtotal-label">Subtotal (Selected Items):</strong>
+              <strong data-testid="cart-subtotal">${cart.subtotal.toFixed(2)}</strong>
+            </div>
+          )}
         </div>
 
         <div style={{ marginTop: 24 }}>

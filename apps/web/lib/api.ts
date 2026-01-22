@@ -269,6 +269,40 @@ export async function deleteCartItem(token: string, itemId: string): Promise<voi
   }
 }
 
+// Checkout API types and functions
+
+export interface CheckoutTotals {
+  subtotal: number;
+  discountAmount: number;
+  shippingFee: number;
+  shippingDiscount: number;
+  total: number;
+  discountVoucherCode: string | null;
+  shippingVoucherCode: string | null;
+}
+
+export async function applyVoucher(
+  token: string,
+  discountCode?: string,
+  shippingCode?: string
+): Promise<CheckoutTotals> {
+  const response = await fetch(`${API_BASE_URL}/checkout/apply-voucher`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({ discountCode, shippingCode }),
+  });
+
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({ message: "Failed to apply voucher" }));
+    throw new Error(error.message || "Failed to apply voucher");
+  }
+
+  return response.json();
+}
+
 // Address API types and functions
 
 export interface Address {
