@@ -20,6 +20,19 @@ public class PayooCallbackHandler
     private readonly IDateTime dateTime;
     private readonly ILogger<PayooCallbackHandler> logger;
 
+    private static string SanitizeForLog(string? value)
+    {
+        if (string.IsNullOrEmpty(value))
+        {
+            return string.Empty;
+        }
+
+        // Remove line breaks to prevent log forging via injected new log entries.
+        return value
+            .Replace("\r", string.Empty)
+            .Replace("\n", string.Empty);
+    }
+
     /// <summary>
     /// Initializes a new instance of the <see cref="PayooCallbackHandler"/> class.
     /// </summary>
@@ -58,7 +71,7 @@ public class PayooCallbackHandler
         {
             this.logger.LogInformation(
                 "Payment callback for reference {PaymentReference} already processed, order {OrderId} exists",
-                command.PaymentReference,
+                SanitizeForLog(command.PaymentReference),
                 existingOrder.Id);
 
             return new PayooCallbackResult
@@ -75,7 +88,7 @@ public class PayooCallbackHandler
         {
             this.logger.LogWarning(
                 "Payment verification failed for reference {PaymentReference}",
-                command.PaymentReference);
+                SanitizeForLog(command.PaymentReference));
 
             return new PayooCallbackResult
             {
