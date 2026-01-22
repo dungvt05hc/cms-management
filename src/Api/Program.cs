@@ -54,11 +54,14 @@ builder.Services.AddOpenApi();
 
 var app = builder.Build();
 
-// Bootstrap super admin on startup
+// Bootstrap data on startup
 using (var scope = app.Services.CreateScope())
 {
     var bootstrapService = scope.ServiceProvider.GetRequiredService<Infrastructure.Services.SuperAdminBootstrapService>();
     await bootstrapService.BootstrapAsync();
+
+    var shippingBootstrapService = scope.ServiceProvider.GetRequiredService<Infrastructure.Services.ShippingBootstrapService>();
+    await shippingBootstrapService.BootstrapAsync();
 }
 
 // Configure the HTTP request pipeline.

@@ -48,8 +48,9 @@ public static class DependencyInjection
         // Shipping
         services.AddScoped<IShippingQuoteProvider, StubShippingQuoteProvider>();
 
-        // Super Admin Bootstrap
+        // Bootstrap services
         services.AddScoped<SuperAdminBootstrapService>();
+        services.AddScoped<ShippingBootstrapService>();
 
         return services;
     }

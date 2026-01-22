@@ -74,36 +74,39 @@ public sealed class ShippingEndpointTests : IDisposable
     }
 
     /// <summary>
-    /// Test that anonymous users can get shipping methods (empty initially).
+    /// Test that anonymous users can get shipping methods (contains bootstrap data).
     /// </summary>
     /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
     [Fact]
-    public async Task GetShippingMethods_Anonymous_ReturnsEmptyList()
+    public async Task GetShippingMethods_Anonymous_ReturnsBootstrapMethods()
     {
         var response = await this.client.GetAsync("/shipping/methods");
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         var methods = await response.Content.ReadFromJsonAsync<List<ShippingMethodDto>>();
         Assert.NotNull(methods);
-        Assert.Empty(methods);
+        Assert.Equal(2, methods.Count); // STANDARD and EXPRESS from bootstrap
+        Assert.Contains(methods, m => m.Code == "STANDARD");
+        Assert.Contains(methods, m => m.Code == "EXPRESS");
     }
 
     /// <summary>
-    /// Test that anonymous users can get shipping methods with data.
+    /// Test that anonymous users can get shipping methods with additional custom data.
     /// </summary>
     /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
     [Fact]
-    public async Task GetShippingMethods_WithData_ReturnsMethodsAndCarriers()
+    public async Task GetShippingMethods_WithAdditionalData_ReturnsAllMethods()
     {
         using var scope = this.factory.Services.CreateScope();
         var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
 
+        // Add custom method on top of bootstrap data
         var method = new ShippingMethod
         {
             Id = Guid.NewGuid(),
-            Code = "STANDARD",
-            Name = "Standard Shipping",
-            Description = "3-5 days delivery",
+            Code = "CUSTOM",
+            Name = "Custom Shipping",
+            Description = "Custom delivery",
             IsActive = true,
             CreatedAt = DateTime.UtcNow,
             UpdatedAt = DateTime.UtcNow,
@@ -113,8 +116,8 @@ public sealed class ShippingEndpointTests : IDisposable
         {
             Id = Guid.NewGuid(),
             ShippingMethodId = method.Id,
-            Code = "GHN",
-            Name = "Giao Hang Nhanh",
+            Code = "CUSTOM_CARRIER",
+            Name = "Custom Carrier",
             Description = "Fast delivery",
             SupportsCOD = true,
             IsActive = true,
@@ -131,10 +134,11 @@ public sealed class ShippingEndpointTests : IDisposable
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         var methods = await response.Content.ReadFromJsonAsync<List<ShippingMethodDto>>();
         Assert.NotNull(methods);
-        Assert.Single(methods);
-        Assert.Equal("STANDARD", methods[0].Code);
-        Assert.Single(methods[0].Carriers);
-        Assert.Equal("GHN", methods[0].Carriers[0].Code);
+        Assert.Equal(3, methods.Count); // STANDARD, EXPRESS from bootstrap + CUSTOM
+        Assert.Contains(methods, m => m.Code == "CUSTOM");
+        var customMethod = methods.First(m => m.Code == "CUSTOM");
+        Assert.Single(customMethod.Carriers);
+        Assert.Equal("CUSTOM_CARRIER", customMethod.Carriers[0].Code);
     }
 
     /// <summary>
