@@ -53,6 +53,16 @@ public class AppDbContext : DbContext, IAppDbContext
     public DbSet<ProductVariant> ProductVariants { get; set; } = null!;
 
     /// <summary>
+    /// Gets or sets the Carts DbSet.
+    /// </summary>
+    public DbSet<Cart> Carts { get; set; } = null!;
+
+    /// <summary>
+    /// Gets or sets the CartItems DbSet.
+    /// </summary>
+    public DbSet<CartItem> CartItems { get; set; } = null!;
+
+    /// <summary>
     /// Configures the database schema.
     /// </summary>
     /// <param name="modelBuilder">The model builder.</param>
@@ -162,6 +172,48 @@ public class AppDbContext : DbContext, IAppDbContext
                 .WithMany(e => e.Variants)
                 .HasForeignKey(e => e.ProductId)
                 .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<Cart>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.HasIndex(e => e.UserId);
+
+            entity.Property(e => e.CreatedAt).IsRequired();
+            entity.Property(e => e.UpdatedAt).IsRequired();
+
+            entity.HasOne(e => e.User)
+                .WithMany()
+                .HasForeignKey(e => e.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<CartItem>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.HasIndex(e => e.CartId);
+            entity.HasIndex(e => e.ProductId);
+            entity.HasIndex(e => e.VariantId);
+
+            entity.Property(e => e.Quantity).IsRequired();
+            entity.Property(e => e.Selected).IsRequired();
+            entity.Property(e => e.CreatedAt).IsRequired();
+            entity.Property(e => e.UpdatedAt).IsRequired();
+
+            entity.HasOne(e => e.Cart)
+                .WithMany(e => e.Items)
+                .HasForeignKey(e => e.CartId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasOne(e => e.Product)
+                .WithMany()
+                .HasForeignKey(e => e.ProductId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            entity.HasOne(e => e.Variant)
+                .WithMany()
+                .HasForeignKey(e => e.VariantId)
+                .OnDelete(DeleteBehavior.Restrict);
         });
     }
 }

@@ -176,3 +176,96 @@ export async function searchSuggestions(q: string, limit: number = 10): Promise<
   return response.json();
 }
 
+export interface CartItem {
+  id: string;
+  productId: string;
+  productName: string;
+  productSlug: string;
+  variantId: string | null;
+  variantName: string | null;
+  price: number;
+  quantity: number;
+  selected: boolean;
+  lineTotal: number;
+}
+
+export interface Cart {
+  id: string;
+  userId: string;
+  items: CartItem[];
+  subtotal: number;
+}
+
+export async function getCart(token: string): Promise<Cart> {
+  const response = await fetch(`${API_BASE_URL}/cart`, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    cache: "no-store",
+  });
+
+  if (!response.ok) {
+    throw new Error("Failed to fetch cart");
+  }
+
+  return response.json();
+}
+
+export async function addCartItem(
+  token: string,
+  productId: string,
+  variantId: string | null,
+  quantity: number
+): Promise<CartItem> {
+  const response = await fetch(`${API_BASE_URL}/cart/items`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({ productId, variantId, quantity }),
+  });
+
+  if (!response.ok) {
+    throw new Error("Failed to add item to cart");
+  }
+
+  return response.json();
+}
+
+export async function updateCartItem(
+  token: string,
+  itemId: string,
+  updates: { quantity?: number; variantId?: string | null; selected?: boolean }
+): Promise<CartItem> {
+  const response = await fetch(`${API_BASE_URL}/cart/items/${itemId}`, {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(updates),
+  });
+
+  if (!response.ok) {
+    throw new Error("Failed to update cart item");
+  }
+
+  return response.json();
+}
+
+export async function deleteCartItem(token: string, itemId: string): Promise<void> {
+  const response = await fetch(`${API_BASE_URL}/cart/items/${itemId}`, {
+    method: "DELETE",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error("Failed to delete cart item");
+  }
+}
+

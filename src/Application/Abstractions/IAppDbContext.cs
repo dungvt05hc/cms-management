@@ -43,6 +43,16 @@ public interface IAppDbContext
     DbSet<ProductVariant> ProductVariants { get; }
 
     /// <summary>
+    /// Gets the Carts DbSet.
+    /// </summary>
+    DbSet<Cart> Carts { get; }
+
+    /// <summary>
+    /// Gets the CartItems DbSet.
+    /// </summary>
+    DbSet<CartItem> CartItems { get; }
+
+    /// <summary>
     /// Saves all changes made in this context to the database.
     /// </summary>
     /// <param name="cancellationToken">A cancellation token.</param>
