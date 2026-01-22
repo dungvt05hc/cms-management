@@ -78,6 +78,16 @@ public interface IAppDbContext
     DbSet<Voucher> Vouchers { get; }
 
     /// <summary>
+    /// Gets the Orders DbSet.
+    /// </summary>
+    DbSet<Order> Orders { get; }
+
+    /// <summary>
+    /// Gets the OrderItems DbSet.
+    /// </summary>
+    DbSet<OrderItem> OrderItems { get; }
+
+    /// <summary>
     /// Saves all changes made in this context to the database.
     /// </summary>
     /// <param name="cancellationToken">A cancellation token.</param>

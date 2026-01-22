@@ -97,6 +97,11 @@ public static class DependencyInjection
 
         // Register checkout handlers
         services.AddScoped<Application.Features.Checkout.ApplyVoucher.ApplyVoucherHandler>();
+        services.AddScoped<Application.Features.Checkout.Preview.CheckoutPreviewHandler>();
+        services.AddScoped<Application.Features.Checkout.Submit.CheckoutSubmitHandler>();
+
+        // Register payment handlers
+        services.AddScoped<Application.Features.Payments.PayooCallback.PayooCallbackHandler>();
 
         // Register validators
         services.AddValidatorsFromAssemblyContaining<RegisterValidator>();

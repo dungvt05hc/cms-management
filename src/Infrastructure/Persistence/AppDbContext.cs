@@ -88,6 +88,16 @@ public class AppDbContext : DbContext, IAppDbContext
     public DbSet<Voucher> Vouchers { get; set; } = null!;
 
     /// <summary>
+    /// Gets or sets the Orders DbSet.
+    /// </summary>
+    public DbSet<Order> Orders { get; set; } = null!;
+
+    /// <summary>
+    /// Gets or sets the OrderItems DbSet.
+    /// </summary>
+    public DbSet<OrderItem> OrderItems { get; set; } = null!;
+
+    /// <summary>
     /// Configures the database schema.
     /// </summary>
     /// <param name="modelBuilder">The model builder.</param>
@@ -319,6 +329,72 @@ public class AppDbContext : DbContext, IAppDbContext
             entity.Property(e => e.MinimumOrderAmount).HasPrecision(18, 2);
             entity.Property(e => e.CreatedAt).IsRequired();
             entity.Property(e => e.UpdatedAt).IsRequired();
+        });
+
+        modelBuilder.Entity<Order>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.HasIndex(e => e.UserId);
+            entity.HasIndex(e => e.PaymentReference);
+
+            entity.Property(e => e.Subtotal).IsRequired().HasPrecision(18, 2);
+            entity.Property(e => e.DiscountAmount).IsRequired().HasPrecision(18, 2);
+            entity.Property(e => e.ShippingFee).IsRequired().HasPrecision(18, 2);
+            entity.Property(e => e.ShippingDiscount).IsRequired().HasPrecision(18, 2);
+            entity.Property(e => e.Total).IsRequired().HasPrecision(18, 2);
+            entity.Property(e => e.PaymentMethod).IsRequired();
+            entity.Property(e => e.Status).IsRequired();
+            entity.Property(e => e.ShippingFullName).IsRequired().HasMaxLength(256);
+            entity.Property(e => e.ShippingPhone).IsRequired().HasMaxLength(20);
+            entity.Property(e => e.ShippingAddressLine).IsRequired().HasMaxLength(512);
+            entity.Property(e => e.ShippingWard).IsRequired().HasMaxLength(256);
+            entity.Property(e => e.ShippingDistrict).IsRequired().HasMaxLength(256);
+            entity.Property(e => e.ShippingCity).IsRequired().HasMaxLength(256);
+            entity.Property(e => e.ShippingMethodCode).IsRequired().HasMaxLength(50);
+            entity.Property(e => e.ShippingCarrierCode).IsRequired().HasMaxLength(50);
+            entity.Property(e => e.DiscountVoucherCode).HasMaxLength(50);
+            entity.Property(e => e.ShippingVoucherCode).HasMaxLength(50);
+            entity.Property(e => e.Notes).HasMaxLength(2000);
+            entity.Property(e => e.PaymentReference).HasMaxLength(256);
+            entity.Property(e => e.CreatedAt).IsRequired();
+            entity.Property(e => e.UpdatedAt).IsRequired();
+
+            entity.HasOne(e => e.User)
+                .WithMany()
+                .HasForeignKey(e => e.UserId)
+                .OnDelete(DeleteBehavior.Restrict);
+        });
+
+        modelBuilder.Entity<OrderItem>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.HasIndex(e => e.OrderId);
+            entity.HasIndex(e => e.ProductId);
+            entity.HasIndex(e => e.VariantId);
+
+            entity.Property(e => e.ProductName).IsRequired().HasMaxLength(512);
+            entity.Property(e => e.VariantName).HasMaxLength(256);
+            entity.Property(e => e.Sku).IsRequired().HasMaxLength(100);
+            entity.Property(e => e.UnitPrice).IsRequired().HasPrecision(18, 2);
+            entity.Property(e => e.Quantity).IsRequired();
+            entity.Property(e => e.TotalPrice).IsRequired().HasPrecision(18, 2);
+            entity.Property(e => e.CreatedAt).IsRequired();
+            entity.Property(e => e.UpdatedAt).IsRequired();
+
+            entity.HasOne(e => e.Order)
+                .WithMany(e => e.Items)
+                .HasForeignKey(e => e.OrderId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasOne(e => e.Product)
+                .WithMany()
+                .HasForeignKey(e => e.ProductId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            entity.HasOne(e => e.Variant)
+                .WithMany()
+                .HasForeignKey(e => e.VariantId)
+                .OnDelete(DeleteBehavior.Restrict);
         });
     }
 }
