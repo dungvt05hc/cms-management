@@ -1,13 +1,10 @@
 import ProductList from "@/components/ProductList";
 
-export default function CategoryPage({ params }: { params: { id: string } }) {
+export default function ProductsPage() {
   return (
     <main style={{ minHeight: "100vh", fontFamily: "system-ui, sans-serif" }}>
       <div style={{ padding: 24, borderBottom: "1px solid #ddd" }}>
-        <h1 data-testid="category-page-title">Category Products</h1>
-        <p data-testid="category-id" style={{ color: "#666" }}>
-          Category: {params.id}
-        </p>
+        <h1 data-testid="products-page-title">All Products</h1>
         <a
           href="/"
           data-testid="back-to-home"
@@ -17,8 +14,7 @@ export default function CategoryPage({ params }: { params: { id: string } }) {
         </a>
       </div>
       
-      <ProductList categorySlug={params.id} />
+      <ProductList />
     </main>
   );
 }
-
