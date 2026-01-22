@@ -422,3 +422,117 @@ export async function setDefaultAddress(token: string, id: string): Promise<Addr
   return response.json();
 }
 
+// Shipping API types and functions
+
+export interface ShippingMethod {
+  id: string;
+  code: string;
+  name: string;
+  description: string | null;
+  carriers: ShippingCarrier[];
+}
+
+export interface ShippingCarrier {
+  id: string;
+  code: string;
+  name: string;
+  description: string | null;
+  supportsCOD: boolean;
+}
+
+export async function getShippingMethods(): Promise<ShippingMethod[]> {
+  const response = await fetch(`${API_BASE_URL}/shipping/methods`, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    cache: "no-store",
+  });
+
+  if (!response.ok) {
+    throw new Error("Failed to fetch shipping methods");
+  }
+
+  return response.json();
+}
+
+// Checkout Submit API types and functions
+
+export enum PaymentMethod {
+  COD = 0,
+  Payoo = 1,
+}
+
+export interface CheckoutSubmitResult {
+  orderId?: string;
+  paymentUrl?: string;
+  paymentReference?: string;
+}
+
+export async function checkoutPreview(
+  token: string,
+  addressId: string,
+  shippingMethodCode: string,
+  shippingCarrierCode: string,
+  discountCode?: string,
+  shippingCode?: string
+): Promise<CheckoutTotals> {
+  const response = await fetch(`${API_BASE_URL}/checkout/preview`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({
+      addressId,
+      shippingMethodCode,
+      shippingCarrierCode,
+      discountCode,
+      shippingCode,
+    }),
+  });
+
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({ message: "Failed to preview checkout" }));
+    throw new Error(error.message || "Failed to preview checkout");
+  }
+
+  return response.json();
+}
+
+export async function checkoutSubmit(
+  token: string,
+  addressId: string,
+  shippingMethodCode: string,
+  shippingCarrierCode: string,
+  paymentMethod: PaymentMethod,
+  discountCode?: string,
+  shippingCode?: string,
+  notes?: string
+): Promise<CheckoutSubmitResult> {
+  const response = await fetch(`${API_BASE_URL}/checkout/submit`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({
+      addressId,
+      shippingMethodCode,
+      shippingCarrierCode,
+      paymentMethod,
+      discountCode,
+      shippingCode,
+      notes,
+    }),
+  });
+
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({ message: "Failed to submit checkout" }));
+    throw new Error(error.message || "Failed to submit checkout");
+  }
+
+  return response.json();
+}
+
+
