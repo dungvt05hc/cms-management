@@ -8,6 +8,10 @@ using Application.Features.Auth.Login;
 using Application.Features.Auth.Register;
 using Application.Features.Auth.ResetPassword;
 using Application.Features.Auth.VerifyOtp;
+using Application.Features.Cart.AddCartItem;
+using Application.Features.Cart.DeleteCartItem;
+using Application.Features.Cart.GetCart;
+using Application.Features.Cart.UpdateCartItem;
 using Application.Features.Categories.CreateCategory;
 using Application.Features.Categories.DeleteCategory;
 using Application.Features.Categories.GetCategoryTree;
@@ -67,6 +71,12 @@ public static class DependencyInjection
 
         // Register search handlers
         services.AddScoped<SearchSuggestHandler>();
+
+        // Register cart handlers
+        services.AddScoped<GetCartHandler>();
+        services.AddScoped<AddCartItemHandler>();
+        services.AddScoped<UpdateCartItemHandler>();
+        services.AddScoped<DeleteCartItemHandler>();
 
         // Register validators
         services.AddValidatorsFromAssemblyContaining<RegisterValidator>();
