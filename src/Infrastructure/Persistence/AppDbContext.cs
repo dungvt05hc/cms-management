@@ -83,6 +83,11 @@ public class AppDbContext : DbContext, IAppDbContext
     public DbSet<ShippingConfig> ShippingConfigs { get; set; } = null!;
 
     /// <summary>
+    /// Gets or sets the Vouchers DbSet.
+    /// </summary>
+    public DbSet<Voucher> Vouchers { get; set; } = null!;
+
+    /// <summary>
     /// Configures the database schema.
     /// </summary>
     /// <param name="modelBuilder">The model builder.</param>
@@ -298,6 +303,20 @@ public class AppDbContext : DbContext, IAppDbContext
             entity.Property(e => e.Key).IsRequired().HasMaxLength(100);
             entity.Property(e => e.Value).IsRequired().HasMaxLength(1000);
             entity.Property(e => e.Description).HasMaxLength(1000);
+            entity.Property(e => e.CreatedAt).IsRequired();
+            entity.Property(e => e.UpdatedAt).IsRequired();
+        });
+
+        modelBuilder.Entity<Voucher>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.HasIndex(e => e.Code).IsUnique();
+
+            entity.Property(e => e.Code).IsRequired().HasMaxLength(50);
+            entity.Property(e => e.Type).IsRequired();
+            entity.Property(e => e.DiscountAmount).IsRequired().HasPrecision(18, 2);
+            entity.Property(e => e.IsActive).IsRequired();
+            entity.Property(e => e.MinimumOrderAmount).HasPrecision(18, 2);
             entity.Property(e => e.CreatedAt).IsRequired();
             entity.Property(e => e.UpdatedAt).IsRequired();
         });
