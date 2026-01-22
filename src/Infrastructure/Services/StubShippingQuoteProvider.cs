@@ -36,10 +36,10 @@ public class StubShippingQuoteProvider : IShippingQuoteProvider
     {
         this.logger.LogInformation(
             "Stub shipping quote requested: MethodCode={MethodCode}, CarrierCode={CarrierCode}, FromCity={FromCity}, ToCity={ToCity}",
-            methodCode,
-            carrierCode,
-            fromCity,
-            toCity);
+            SanitizeForLogging(methodCode),
+            SanitizeForLogging(carrierCode),
+            SanitizeForLogging(fromCity),
+            SanitizeForLogging(toCity));
 
         var fee = this.CalculateDeterministicFee(methodCode, carrierCode, weight);
         var eta = this.CalculateDeterministicEta(methodCode, carrierCode);
@@ -87,5 +87,17 @@ public class StubShippingQuoteProvider : IShippingQuoteProvider
         };
 
         return baseEta + carrierAdjustment;
+    }
+
+    private static string SanitizeForLogging(string value)
+    {
+        if (value is null)
+        {
+            return string.Empty;
+        }
+
+        return value
+            .Replace("\r", string.Empty, StringComparison.Ordinal)
+            .Replace("\n", string.Empty, StringComparison.Ordinal);
     }
 }
