@@ -43,10 +43,19 @@ public class GetShippingQuoteHandler
         GetShippingQuoteQuery query,
         CancellationToken cancellationToken)
     {
+        var sanitizedMethodCode = (query.MethodCode ?? string.Empty)
+            .Replace(Environment.NewLine, string.Empty)
+            .Replace("\r", string.Empty)
+            .Replace("\n", string.Empty);
+        var sanitizedCarrierCode = (query.CarrierCode ?? string.Empty)
+            .Replace(Environment.NewLine, string.Empty)
+            .Replace("\r", string.Empty)
+            .Replace("\n", string.Empty);
+
         this.logger.LogInformation(
             "Getting shipping quote: MethodCode={MethodCode}, CarrierCode={CarrierCode}, AddressId={AddressId}",
-            query.MethodCode,
-            query.CarrierCode,
+            sanitizedMethodCode,
+            sanitizedCarrierCode,
             query.AddressId);
 
         // Verify method exists and is active
