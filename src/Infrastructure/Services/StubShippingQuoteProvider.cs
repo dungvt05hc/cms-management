@@ -47,6 +47,18 @@ public class StubShippingQuoteProvider : IShippingQuoteProvider
         return Task.FromResult(new ShippingQuote(fee, eta));
     }
 
+    private static string SanitizeForLogging(string value)
+    {
+        if (value is null)
+        {
+            return string.Empty;
+        }
+
+        return value
+            .Replace("\r", string.Empty, StringComparison.Ordinal)
+            .Replace("\n", string.Empty, StringComparison.Ordinal);
+    }
+
     private decimal CalculateDeterministicFee(string methodCode, string carrierCode, int weight)
     {
         var baseFee = methodCode.ToUpperInvariant() switch
@@ -87,17 +99,5 @@ public class StubShippingQuoteProvider : IShippingQuoteProvider
         };
 
         return baseEta + carrierAdjustment;
-    }
-
-    private static string SanitizeForLogging(string value)
-    {
-        if (value is null)
-        {
-            return string.Empty;
-        }
-
-        return value
-            .Replace("\r", string.Empty, StringComparison.Ordinal)
-            .Replace("\n", string.Empty, StringComparison.Ordinal);
     }
 }

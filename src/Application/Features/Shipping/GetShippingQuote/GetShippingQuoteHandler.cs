@@ -46,19 +46,10 @@ public class GetShippingQuoteHandler
         var safeMethodCode = SanitizeForLogging(query.MethodCode);
         var safeCarrierCode = SanitizeForLogging(query.CarrierCode);
 
-        var sanitizedMethodCode = (query.MethodCode ?? string.Empty)
-            .Replace(Environment.NewLine, string.Empty)
-            safeMethodCode,
-            safeCarrierCode,
-        var sanitizedCarrierCode = (query.CarrierCode ?? string.Empty)
-            .Replace(Environment.NewLine, string.Empty)
-            .Replace("\r", string.Empty)
-            .Replace("\n", string.Empty);
-
         this.logger.LogInformation(
             "Getting shipping quote: MethodCode={MethodCode}, CarrierCode={CarrierCode}, AddressId={AddressId}",
-            sanitizedMethodCode,
-            sanitizedCarrierCode,
+            safeMethodCode,
+            safeCarrierCode,
             query.AddressId);
 
         // Verify method exists and is active
@@ -94,6 +85,17 @@ public class GetShippingQuoteHandler
             "Default City",
             address.City,
             address.District,
+            address.Ward,
+            query.Weight,
+            cancellationToken);
+
+        this.logger.LogInformation(
+            "Shipping quote calculated: Fee={Fee}, ETA={ETA} days",
+            quote.Fee,
+            quote.EstimatedDeliveryDays);
+
+        return new ShippingQuoteDto(quote.Fee, quote.EstimatedDeliveryDays);
+    }
 
     private static string SanitizeForLogging(string value)
     {
@@ -106,16 +108,5 @@ public class GetShippingQuoteHandler
         return value
             .Replace("\r", string.Empty, StringComparison.Ordinal)
             .Replace("\n", string.Empty, StringComparison.Ordinal);
-    }
-            address.Ward,
-            query.Weight,
-            cancellationToken);
-
-        this.logger.LogInformation(
-            "Shipping quote calculated: Fee={Fee}, ETA={ETA} days",
-            quote.Fee,
-            quote.EstimatedDeliveryDays);
-
-        return new ShippingQuoteDto(quote.Fee, quote.EstimatedDeliveryDays);
     }
 }
