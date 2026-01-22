@@ -58,6 +58,21 @@ public interface IAppDbContext
     DbSet<Address> Addresses { get; }
 
     /// <summary>
+    /// Gets the ShippingMethods DbSet.
+    /// </summary>
+    DbSet<ShippingMethod> ShippingMethods { get; }
+
+    /// <summary>
+    /// Gets the ShippingCarriers DbSet.
+    /// </summary>
+    DbSet<ShippingCarrier> ShippingCarriers { get; }
+
+    /// <summary>
+    /// Gets the ShippingConfigs DbSet.
+    /// </summary>
+    DbSet<ShippingConfig> ShippingConfigs { get; }
+
+    /// <summary>
     /// Saves all changes made in this context to the database.
     /// </summary>
     /// <param name="cancellationToken">A cancellation token.</param>
