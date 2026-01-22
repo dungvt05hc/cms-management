@@ -63,6 +63,11 @@ public class AppDbContext : DbContext, IAppDbContext
     public DbSet<CartItem> CartItems { get; set; } = null!;
 
     /// <summary>
+    /// Gets or sets the Addresses DbSet.
+    /// </summary>
+    public DbSet<Address> Addresses { get; set; } = null!;
+
+    /// <summary>
     /// Configures the database schema.
     /// </summary>
     /// <param name="modelBuilder">The model builder.</param>
@@ -214,6 +219,27 @@ public class AppDbContext : DbContext, IAppDbContext
                 .WithMany()
                 .HasForeignKey(e => e.VariantId)
                 .OnDelete(DeleteBehavior.Restrict);
+        });
+
+        modelBuilder.Entity<Address>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.HasIndex(e => e.UserId);
+
+            entity.Property(e => e.FullName).IsRequired().HasMaxLength(256);
+            entity.Property(e => e.Phone).IsRequired().HasMaxLength(20);
+            entity.Property(e => e.AddressLine).IsRequired().HasMaxLength(512);
+            entity.Property(e => e.Ward).IsRequired().HasMaxLength(256);
+            entity.Property(e => e.District).IsRequired().HasMaxLength(256);
+            entity.Property(e => e.City).IsRequired().HasMaxLength(256);
+            entity.Property(e => e.IsDefault).IsRequired();
+            entity.Property(e => e.CreatedAt).IsRequired();
+            entity.Property(e => e.UpdatedAt).IsRequired();
+
+            entity.HasOne(e => e.User)
+                .WithMany()
+                .HasForeignKey(e => e.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
         });
     }
 }

@@ -269,3 +269,122 @@ export async function deleteCartItem(token: string, itemId: string): Promise<voi
   }
 }
 
+// Address API types and functions
+
+export interface Address {
+  id: string;
+  userId: string;
+  fullName: string;
+  phone: string;
+  addressLine: string;
+  ward: string;
+  district: string;
+  city: string;
+  isDefault: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export async function getAddresses(token: string): Promise<Address[]> {
+  const response = await fetch(`${API_BASE_URL}/me/addresses`, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    cache: "no-store",
+  });
+
+  if (!response.ok) {
+    throw new Error("Failed to fetch addresses");
+  }
+
+  return response.json();
+}
+
+export async function createAddress(
+  token: string,
+  address: {
+    fullName: string;
+    phone: string;
+    addressLine: string;
+    ward: string;
+    district: string;
+    city: string;
+    isDefault: boolean;
+  }
+): Promise<Address> {
+  const response = await fetch(`${API_BASE_URL}/me/addresses`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(address),
+  });
+
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({ message: "Failed to create address" }));
+    throw new Error(error.message || "Failed to create address");
+  }
+
+  return response.json();
+}
+
+export async function updateAddress(
+  token: string,
+  id: string,
+  address: {
+    fullName: string;
+    phone: string;
+    addressLine: string;
+    ward: string;
+    district: string;
+    city: string;
+  }
+): Promise<Address> {
+  const response = await fetch(`${API_BASE_URL}/me/addresses/${id}`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(address),
+  });
+
+  if (!response.ok) {
+    throw new Error("Failed to update address");
+  }
+
+  return response.json();
+}
+
+export async function deleteAddress(token: string, id: string): Promise<void> {
+  const response = await fetch(`${API_BASE_URL}/me/addresses/${id}`, {
+    method: "DELETE",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error("Failed to delete address");
+  }
+}
+
+export async function setDefaultAddress(token: string, id: string): Promise<Address> {
+  const response = await fetch(`${API_BASE_URL}/me/addresses/${id}/default`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error("Failed to set default address");
+  }
+
+  return response.json();
+}
+
