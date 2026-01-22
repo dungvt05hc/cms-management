@@ -114,3 +114,38 @@ export async function getProducts(options: GetProductsOptions): Promise<CursorPa
   return response.json();
 }
 
+export async function getProductBySlug(slug: string): Promise<Product> {
+  const response = await fetch(`${API_BASE_URL}/products/${slug}`, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    cache: "no-store",
+  });
+
+  if (!response.ok) {
+    if (response.status === 404) {
+      throw new Error("Product not found");
+    }
+    throw new Error("Failed to fetch product");
+  }
+
+  return response.json();
+}
+
+export async function getProductSuggestions(slug: string, limit: number = 4): Promise<Product[]> {
+  const response = await fetch(`${API_BASE_URL}/products/${slug}/suggestions?limit=${limit}`, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    cache: "no-store",
+  });
+
+  if (!response.ok) {
+    throw new Error("Failed to fetch product suggestions");
+  }
+
+  return response.json();
+}
+
