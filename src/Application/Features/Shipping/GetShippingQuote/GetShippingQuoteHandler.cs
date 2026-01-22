@@ -43,10 +43,13 @@ public class GetShippingQuoteHandler
         GetShippingQuoteQuery query,
         CancellationToken cancellationToken)
     {
+        var safeMethodCode = SanitizeForLogging(query.MethodCode);
+        var safeCarrierCode = SanitizeForLogging(query.CarrierCode);
+
         var sanitizedMethodCode = (query.MethodCode ?? string.Empty)
             .Replace(Environment.NewLine, string.Empty)
-            .Replace("\r", string.Empty)
-            .Replace("\n", string.Empty);
+            safeMethodCode,
+            safeCarrierCode,
         var sanitizedCarrierCode = (query.CarrierCode ?? string.Empty)
             .Replace(Environment.NewLine, string.Empty)
             .Replace("\r", string.Empty)
@@ -91,6 +94,19 @@ public class GetShippingQuoteHandler
             "Default City",
             address.City,
             address.District,
+
+    private static string SanitizeForLogging(string value)
+    {
+        if (value == null)
+        {
+            return string.Empty;
+        }
+
+        // Remove newline characters to prevent log forging via line breaks.
+        return value
+            .Replace("\r", string.Empty, StringComparison.Ordinal)
+            .Replace("\n", string.Empty, StringComparison.Ordinal);
+    }
             address.Ward,
             query.Weight,
             cancellationToken);
