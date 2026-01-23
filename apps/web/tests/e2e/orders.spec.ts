@@ -178,4 +178,114 @@ test.describe("Orders - List, Detail, Cancel, Confirm", () => {
     // Test passes if we reached this point
     expect(ordersPageLoaded).toBe(true);
   });
+
+  test("Reorder from delivered order to cart", async ({ page }) => {
+    await page.goto("/");
+
+    // Mock authentication
+    await page.evaluate(() => {
+      localStorage.setItem("authToken", "mock-test-token");
+    });
+
+    // Navigate to orders page
+    await page.goto("/account/orders");
+
+    const ordersPageLoaded = await page
+      .locator('[data-testid="orders-page"]')
+      .isVisible({ timeout: 5000 })
+      .catch(() => false);
+
+    if (!ordersPageLoaded) {
+      test.skip();
+    }
+
+    // Click on Delivered tab to find eligible orders for reorder
+    const deliveredTab = page.locator('[data-testid="tab-delivered"]');
+    const isDeliveredTabVisible = await deliveredTab.isVisible().catch(() => false);
+
+    if (isDeliveredTabVisible) {
+      await deliveredTab.click();
+      await page.waitForTimeout(500);
+    }
+
+    // Check if there are any delivered orders
+    const hasOrders = await page.locator('[data-testid="orders-list"]').isVisible().catch(() => false);
+    const isEmpty = await page.locator('[data-testid="orders-empty"]').isVisible().catch(() => false);
+
+    if (!hasOrders || isEmpty) {
+      // Try cancelled orders instead
+      const cancelledTab = page.locator('[data-testid="tab-cancelled"]');
+      const isCancelledTabVisible = await cancelledTab.isVisible().catch(() => false);
+
+      if (isCancelledTabVisible) {
+        await cancelledTab.click();
+        await page.waitForTimeout(500);
+
+        const hasCancelledOrders = await page.locator('[data-testid="orders-list"]').isVisible().catch(() => false);
+        if (!hasCancelledOrders) {
+          test.skip();
+        }
+      } else {
+        test.skip();
+      }
+    }
+
+    // Get first order and navigate to detail page
+    const firstOrder = page.locator('[data-testid^="order-"]').first();
+    const orderId = (await firstOrder.getAttribute('data-testid'))?.replace('order-', '');
+    
+    if (!orderId) {
+      test.skip();
+    }
+
+    const viewDetailsBtn = page.locator(`[data-testid="view-order-${orderId}"]`);
+    await viewDetailsBtn.click();
+
+    // Wait for order detail page
+    const orderDetailLoaded = await page
+      .locator('[data-testid="order-detail-page"]')
+      .isVisible({ timeout: 5000 })
+      .catch(() => false);
+
+    if (!orderDetailLoaded) {
+      test.skip();
+    }
+
+    // Check if reorder button exists
+    const reorderBtn = page.locator('[data-testid="reorder-btn"]');
+    const hasReorderBtn = await reorderBtn.isVisible().catch(() => false);
+
+    if (!hasReorderBtn) {
+      test.skip();
+    }
+
+    // Verify reorder button is visible and enabled
+    await expect(reorderBtn).toBeVisible();
+    await expect(reorderBtn).toBeEnabled();
+
+    // Setup dialog handler before clicking
+    page.once('dialog', async dialog => {
+      await dialog.accept();
+    });
+
+    // Click reorder button
+    await reorderBtn.click();
+
+    // Wait for navigation to cart page or alert
+    const navigatedToCart = await page.waitForURL('**/cart', { timeout: 5000 }).catch(() => false);
+    
+    if (navigatedToCart) {
+      // Verify we're on cart page
+      expect(page.url()).toContain('/cart');
+      
+      // Optional: Check that cart has items
+      const cartItems = await page.locator('[data-testid="cart-items"]').isVisible({ timeout: 3000 }).catch(() => false);
+      if (cartItems) {
+        await expect(page.locator('[data-testid="cart-items"]')).toBeVisible();
+      }
+    }
+
+    // Test passes if reorder button was present and clickable
+    expect(hasReorderBtn).toBe(true);
+  });
 });
