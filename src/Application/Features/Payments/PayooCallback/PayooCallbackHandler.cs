@@ -20,19 +20,6 @@ public class PayooCallbackHandler
     private readonly IDateTime dateTime;
     private readonly ILogger<PayooCallbackHandler> logger;
 
-    private static string SanitizeForLog(string? value)
-    {
-        if (string.IsNullOrEmpty(value))
-        {
-            return string.Empty;
-        }
-
-        // Remove line breaks to prevent log forging via injected new log entries.
-        return value
-            .Replace("\r", string.Empty)
-            .Replace("\n", string.Empty);
-    }
-
     /// <summary>
     /// Initializes a new instance of the <see cref="PayooCallbackHandler"/> class.
     /// </summary>
@@ -270,5 +257,18 @@ public class PayooCallbackHandler
             Success = true,
             OrderId = order.Id,
         };
+    }
+
+    private static string SanitizeForLog(string? value)
+    {
+        if (string.IsNullOrEmpty(value))
+        {
+            return string.Empty;
+        }
+
+        // Remove line breaks to prevent log forging via injected new log entries.
+        return value
+            .Replace("\r", string.Empty)
+            .Replace("\n", string.Empty);
     }
 }

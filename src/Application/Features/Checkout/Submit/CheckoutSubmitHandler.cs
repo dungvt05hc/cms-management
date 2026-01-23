@@ -195,7 +195,7 @@ public class CheckoutSubmitHandler
         }
     }
 
-    private async Task<Order> CreateOrderAsync(
+    private Task<Order> CreateOrderAsync(
         CheckoutSubmitCommand command,
         Address address,
         List<CartItem> selectedItems,
@@ -261,6 +261,6 @@ public class CheckoutSubmitHandler
         }
 
         this.dbContext.Orders.Add(order);
-        return order;
+        return Task.FromResult(order);
     }
 }
