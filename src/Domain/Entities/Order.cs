@@ -133,4 +133,39 @@ public class Order
     /// Gets or sets the date and time the order was last updated.
     /// </summary>
     public DateTime UpdatedAt { get; set; }
+
+    /// <summary>
+    /// Gets or sets a value indicating whether VAT invoice is requested.
+    /// </summary>
+    public bool InvoiceRequested { get; set; }
+
+    /// <summary>
+    /// Gets or sets the invoice tax code (MST).
+    /// </summary>
+    public string? InvoiceTaxCode { get; set; }
+
+    /// <summary>
+    /// Gets or sets the invoice company name.
+    /// </summary>
+    public string? InvoiceCompanyName { get; set; }
+
+    /// <summary>
+    /// Gets or sets the invoice company address.
+    /// </summary>
+    public string? InvoiceCompanyAddress { get; set; }
+
+    /// <summary>
+    /// Gets or sets the invoice email.
+    /// </summary>
+    public string? InvoiceEmail { get; set; }
+
+    /// <summary>
+    /// Gets or sets the date and time the invoice was issued (null if not yet issued).
+    /// </summary>
+    public DateTime? InvoiceIssuedAt { get; set; }
+
+    /// <summary>
+    /// Gets or sets the date and time the order was delivered (used for invoice eligibility).
+    /// </summary>
+    public DateTime? DeliveredAt { get; set; }
 }

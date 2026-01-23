@@ -125,6 +125,13 @@ public static class DependencyInjection
         services.AddScoped<ConfirmOrderHandler>();
         services.AddScoped<ReorderHandler>();
 
+        // Register invoice profile handlers
+        services.AddScoped<Application.Features.InvoiceProfiles.GetInvoiceProfiles.GetInvoiceProfilesHandler>();
+        services.AddScoped<Application.Features.InvoiceProfiles.CreateInvoiceProfile.CreateInvoiceProfileHandler>();
+
+        // Register invoice handlers
+        services.AddScoped<Application.Features.Invoices.RunIssuance.RunIssuanceHandler>();
+
         // Register validators
         services.AddValidatorsFromAssemblyContaining<RegisterValidator>();
 

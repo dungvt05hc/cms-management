@@ -51,6 +51,9 @@ public static class DependencyInjection
         // Payment
         services.AddScoped<IPaymentGateway, StubPaymentGateway>();
 
+        // Invoice
+        services.AddScoped<IInvoiceIssuer, StubInvoiceIssuer>();
+
         // Bootstrap services
         services.AddScoped<SuperAdminBootstrapService>();
         services.AddScoped<ShippingBootstrapService>();
