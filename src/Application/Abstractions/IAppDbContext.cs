@@ -103,6 +103,16 @@ public interface IAppDbContext
     DbSet<InvoiceProfile> InvoiceProfiles { get; }
 
     /// <summary>
+    /// Gets the Notifications DbSet.
+    /// </summary>
+    DbSet<Notification> Notifications { get; }
+
+    /// <summary>
+    /// Gets the DeviceTokens DbSet.
+    /// </summary>
+    DbSet<DeviceToken> DeviceTokens { get; }
+
+    /// <summary>
     /// Saves all changes made in this context to the database.
     /// </summary>
     /// <param name="cancellationToken">A cancellation token.</param>
