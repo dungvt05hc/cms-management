@@ -1,6 +1,12 @@
 import { defineConfig } from 'vitest/config';
+import path from 'path';
 
 export default defineConfig({
+  resolve: {
+    alias: {
+      '@': path.resolve(__dirname, './'),
+    },
+  },
   test: {
     // Exclude Playwright e2e tests from Vitest
     exclude: [
@@ -15,5 +21,6 @@ export default defineConfig({
     include: [
       '**/*.{test,unit}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}',
     ],
+    environment: 'jsdom',
   },
 });

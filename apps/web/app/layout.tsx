@@ -1,4 +1,7 @@
 import SearchWrapper from "@/components/SearchWrapper";
+import GoogleAnalytics from "@/components/GoogleAnalytics";
+import GoogleTagManager from "@/components/GoogleTagManager";
+import AnalyticsTracker from "@/components/AnalyticsTracker";
 
 export const metadata = {
     title: "CMS Management",
@@ -13,6 +16,9 @@ export const metadata = {
     return (
       <html lang="en">
         <body>
+          <GoogleAnalytics />
+          <GoogleTagManager />
+          <AnalyticsTracker />
           <header style={{ 
             backgroundColor: "#f8f9fa", 
             padding: "16px 24px", 
