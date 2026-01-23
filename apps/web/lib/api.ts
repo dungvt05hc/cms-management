@@ -535,4 +535,128 @@ export async function checkoutSubmit(
   return response.json();
 }
 
+// Orders API types and functions
+
+export enum OrderStatus {
+  Processing = 0,
+  Shipping = 1,
+  Delivered = 2,
+  Cancelled = 3,
+}
+
+export interface OrderItem {
+  id: string;
+  productId: string;
+  variantId: string | null;
+  productName: string;
+  variantName: string | null;
+  sku: string;
+  unitPrice: number;
+  quantity: number;
+  totalPrice: number;
+}
+
+export interface Order {
+  id: string;
+  status: OrderStatus;
+  paymentMethod: PaymentMethod;
+  subtotal: number;
+  discountAmount: number;
+  shippingFee: number;
+  shippingDiscount: number;
+  total: number;
+  shippingFullName: string;
+  shippingPhone: string;
+  shippingAddressLine: string;
+  shippingWard: string;
+  shippingDistrict: string;
+  shippingCity: string;
+  shippingMethodCode: string;
+  shippingCarrierCode: string;
+  discountVoucherCode: string | null;
+  shippingVoucherCode: string | null;
+  notes: string | null;
+  items: OrderItem[];
+  createdAt: string;
+  updatedAt: string;
+}
+
+export async function getOrders(token: string, status?: OrderStatus): Promise<Order[]> {
+  const params = new URLSearchParams();
+  if (status !== undefined) {
+    params.append("status", status.toString());
+  }
+
+  const response = await fetch(`${API_BASE_URL}/me/orders?${params.toString()}`, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    cache: "no-store",
+  });
+
+  if (!response.ok) {
+    throw new Error("Failed to fetch orders");
+  }
+
+  return response.json();
+}
+
+export async function getOrderById(token: string, orderId: string): Promise<Order> {
+  const response = await fetch(`${API_BASE_URL}/me/orders/${orderId}`, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    cache: "no-store",
+  });
+
+  if (!response.ok) {
+    if (response.status === 404) {
+      throw new Error("Order not found");
+    }
+    throw new Error("Failed to fetch order");
+  }
+
+  return response.json();
+}
+
+export async function cancelOrder(
+  token: string,
+  orderId: string,
+  reasonCode: string,
+  note?: string
+): Promise<void> {
+  const response = await fetch(`${API_BASE_URL}/me/orders/${orderId}/cancel`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({ reasonCode, note }),
+  });
+
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({ message: "Failed to cancel order" }));
+    throw new Error(error.message || "Failed to cancel order");
+  }
+}
+
+export async function confirmOrderReceived(token: string, orderId: string): Promise<void> {
+  const response = await fetch(`${API_BASE_URL}/me/orders/${orderId}/confirm-received`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({}),
+  });
+
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({ message: "Failed to confirm order" }));
+    throw new Error(error.message || "Failed to confirm order");
+  }
+}
 
