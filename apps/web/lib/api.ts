@@ -678,3 +678,96 @@ export async function reorderOrder(token: string, orderId: string): Promise<{ ca
   return response.json();
 }
 
+// Notifications API types and functions
+
+export interface Notification {
+  id: string;
+  type: string;
+  title: string;
+  message: string;
+  data: string | null;
+  isRead: boolean;
+  createdAt: string;
+}
+
+export async function getNotifications(
+  token: string,
+  type: string = "all"
+): Promise<Notification[]> {
+  const response = await fetch(`${API_BASE_URL}/me/notifications?type=${type}`, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    cache: "no-store",
+  });
+
+  if (!response.ok) {
+    throw new Error("Failed to fetch notifications");
+  }
+
+  return response.json();
+}
+
+// Device Tokens API types and functions
+
+export interface DeviceToken {
+  id: string;
+  token: string;
+  deviceType: string | null;
+  createdAt: string;
+}
+
+export async function getDevices(token: string): Promise<DeviceToken[]> {
+  const response = await fetch(`${API_BASE_URL}/me/devices`, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    cache: "no-store",
+  });
+
+  if (!response.ok) {
+    throw new Error("Failed to fetch device tokens");
+  }
+
+  return response.json();
+}
+
+export async function registerDevice(
+  token: string,
+  deviceToken: string,
+  deviceType?: string
+): Promise<{ id: string }> {
+  const response = await fetch(`${API_BASE_URL}/me/devices`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({ token: deviceToken, deviceType }),
+  });
+
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({ message: "Failed to register device" }));
+    throw new Error(error.message || "Failed to register device");
+  }
+
+  return response.json();
+}
+
+export async function deleteDevice(token: string, deviceId: string): Promise<void> {
+  const response = await fetch(`${API_BASE_URL}/me/devices/${deviceId}`, {
+    method: "DELETE",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error("Failed to delete device token");
+  }
+}
+
