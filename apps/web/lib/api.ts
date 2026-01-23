@@ -771,3 +771,139 @@ export async function deleteDevice(token: string, deviceId: string): Promise<voi
   }
 }
 
+// Articles (CMS) API types and functions
+
+export interface ArticleCategory {
+  id: string;
+  name: string;
+  slug: string;
+  description: string | null;
+  displayOrder: number;
+}
+
+export interface Article {
+  id: string;
+  title: string;
+  slug: string;
+  summary: string | null;
+  content: string;
+  categoryId: string | null;
+  categoryName: string | null;
+  categorySlug: string | null;
+  thumbnailUrl: string | null;
+  isPublished: boolean;
+  publishedAt: string | null;
+  viewCount: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface ArticleListItem {
+  id: string;
+  title: string;
+  slug: string;
+  summary: string | null;
+  categoryName: string | null;
+  categorySlug: string | null;
+  thumbnailUrl: string | null;
+  publishedAt: string | null;
+  viewCount: number;
+}
+
+// TODO: Implement when backend articles API is ready
+export async function getArticleCategories(): Promise<ArticleCategory[]> {
+  // Stub for future API integration
+  return Promise.resolve([
+    {
+      id: "1",
+      name: "News",
+      slug: "news",
+      description: "Latest news and updates",
+      displayOrder: 1,
+    },
+    {
+      id: "2",
+      name: "Guides",
+      slug: "guides",
+      description: "How-to guides and tutorials",
+      displayOrder: 2,
+    },
+    {
+      id: "3",
+      name: "Help",
+      slug: "help",
+      description: "Help and support articles",
+      displayOrder: 3,
+    },
+  ]);
+}
+
+// TODO: Implement when backend articles API is ready
+export async function getArticles(
+  categorySlug?: string,
+  page: number = 1,
+  pageSize: number = 12
+): Promise<PagedResult<ArticleListItem>> {
+  // Stub for future API integration
+  const items: ArticleListItem[] = Array.from({ length: 6 }, (_, i) => ({
+    id: `article-${i + 1}`,
+    title: `Sample Article ${i + 1}${categorySlug ? ` in ${categorySlug}` : ""}`,
+    slug: `sample-article-${i + 1}`,
+    summary: `This is a summary of article ${i + 1}. Lorem ipsum dolor sit amet, consectetur adipiscing elit.`,
+    categoryName: categorySlug || "News",
+    categorySlug: categorySlug || "news",
+    thumbnailUrl: null,
+    publishedAt: new Date(Date.now() - i * 86400000).toISOString(),
+    viewCount: Math.floor(Math.random() * 1000),
+  }));
+
+  return Promise.resolve({
+    items,
+    totalCount: items.length,
+    page,
+    pageSize,
+  });
+}
+
+// TODO: Implement when backend articles API is ready
+export async function getArticleBySlug(slug: string): Promise<Article> {
+  // Stub for future API integration
+  return Promise.resolve({
+    id: "1",
+    title: `Article: ${slug}`,
+    slug,
+    summary: "This is a sample article summary.",
+    content: `<h2>Article Content</h2>
+<p>This is the full content of the article with slug: <strong>${slug}</strong>.</p>
+<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
+<p>Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>`,
+    categoryId: "1",
+    categoryName: "News",
+    categorySlug: "news",
+    thumbnailUrl: null,
+    isPublished: true,
+    publishedAt: new Date().toISOString(),
+    viewCount: 42,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  });
+}
+
+// TODO: Implement when backend articles API is ready
+export async function getFeaturedArticles(limit: number = 3): Promise<ArticleListItem[]> {
+  // Stub for future API integration
+  const items: ArticleListItem[] = Array.from({ length: Math.min(limit, 3) }, (_, i) => ({
+    id: `featured-${i + 1}`,
+    title: `Featured Article ${i + 1}`,
+    slug: `featured-article-${i + 1}`,
+    summary: `This is a featured article summary ${i + 1}.`,
+    categoryName: "News",
+    categorySlug: "news",
+    thumbnailUrl: null,
+    publishedAt: new Date(Date.now() - i * 86400000).toISOString(),
+    viewCount: Math.floor(Math.random() * 1000),
+  }));
+
+  return Promise.resolve(items);
+}
+
