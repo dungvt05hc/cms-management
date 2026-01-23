@@ -21,6 +21,10 @@ using Application.Features.Categories.CreateCategory;
 using Application.Features.Categories.DeleteCategory;
 using Application.Features.Categories.GetCategoryTree;
 using Application.Features.Categories.UpdateCategory;
+using Application.Features.Devices.DeleteDevice;
+using Application.Features.Devices.GetDevices;
+using Application.Features.Devices.RegisterDevice;
+using Application.Features.Notifications.GetNotifications;
 using Application.Features.Orders.CancelOrder;
 using Application.Features.Orders.ConfirmOrder;
 using Application.Features.Orders.GetOrderById;
@@ -131,6 +135,14 @@ public static class DependencyInjection
 
         // Register invoice handlers
         services.AddScoped<Application.Features.Invoices.RunIssuance.RunIssuanceHandler>();
+
+        // Register notification handlers
+        services.AddScoped<GetNotificationsHandler>();
+
+        // Register device handlers
+        services.AddScoped<GetDevicesHandler>();
+        services.AddScoped<RegisterDeviceHandler>();
+        services.AddScoped<DeleteDeviceHandler>();
 
         // Register validators
         services.AddValidatorsFromAssemblyContaining<RegisterValidator>();

@@ -113,6 +113,16 @@ public class AppDbContext : DbContext, IAppDbContext
     public DbSet<InvoiceProfile> InvoiceProfiles { get; set; } = null!;
 
     /// <summary>
+    /// Gets or sets the Notifications DbSet.
+    /// </summary>
+    public DbSet<Notification> Notifications { get; set; } = null!;
+
+    /// <summary>
+    /// Gets or sets the DeviceTokens DbSet.
+    /// </summary>
+    public DbSet<DeviceToken> DeviceTokens { get; set; } = null!;
+
+    /// <summary>
     /// Configures the database schema.
     /// </summary>
     /// <param name="modelBuilder">The model builder.</param>
@@ -461,6 +471,41 @@ public class AppDbContext : DbContext, IAppDbContext
             entity.Property(e => e.Email).IsRequired().HasMaxLength(256);
             entity.Property(e => e.CreatedAt).IsRequired();
             entity.Property(e => e.UpdatedAt).IsRequired();
+
+            entity.HasOne(e => e.User)
+                .WithMany()
+                .HasForeignKey(e => e.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<Notification>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.HasIndex(e => e.UserId);
+            entity.HasIndex(e => new { e.UserId, e.Type });
+
+            entity.Property(e => e.Type).IsRequired();
+            entity.Property(e => e.Title).IsRequired().HasMaxLength(256);
+            entity.Property(e => e.Message).IsRequired().HasMaxLength(2000);
+            entity.Property(e => e.Data).HasMaxLength(4000);
+            entity.Property(e => e.IsRead).IsRequired();
+            entity.Property(e => e.CreatedAt).IsRequired();
+
+            entity.HasOne(e => e.User)
+                .WithMany()
+                .HasForeignKey(e => e.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<DeviceToken>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.HasIndex(e => e.UserId);
+            entity.HasIndex(e => new { e.UserId, e.Token }).IsUnique();
+
+            entity.Property(e => e.Token).IsRequired().HasMaxLength(512);
+            entity.Property(e => e.DeviceType).HasMaxLength(100);
+            entity.Property(e => e.CreatedAt).IsRequired();
 
             entity.HasOne(e => e.User)
                 .WithMany()
