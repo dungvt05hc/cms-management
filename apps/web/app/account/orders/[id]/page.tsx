@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { getOrderById, cancelOrder, confirmOrderReceived, Order, OrderStatus } from "@/lib/api";
+import { getOrderById, cancelOrder, confirmOrderReceived, reorderOrder, Order, OrderStatus } from "@/lib/api";
 import Link from "next/link";
 
 export default function OrderDetailPage() {
@@ -78,6 +78,27 @@ export default function OrderDetailPage() {
       await fetchOrder();
     } catch (err) {
       alert(err instanceof Error ? err.message : "Failed to confirm order");
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  const handleReorder = async () => {
+    if (!order || actionLoading) return;
+
+    try {
+      setActionLoading(true);
+      const token = localStorage.getItem("authToken");
+      if (!token) {
+        alert("Not authenticated");
+        return;
+      }
+
+      await reorderOrder(token, orderId);
+      alert("Items added to cart successfully");
+      router.push("/cart");
+    } catch (err) {
+      alert(err instanceof Error ? err.message : "Failed to reorder");
     } finally {
       setActionLoading(false);
     }
@@ -257,6 +278,16 @@ export default function OrderDetailPage() {
               data-testid="confirm-received-btn"
             >
               {actionLoading ? "Processing..." : "Confirm Received"}
+            </button>
+          )}
+          {(order.status === OrderStatus.Delivered || order.status === OrderStatus.Cancelled) && (
+            <button
+              onClick={handleReorder}
+              disabled={actionLoading}
+              className="px-6 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 disabled:bg-gray-400"
+              data-testid="reorder-btn"
+            >
+              {actionLoading ? "Processing..." : "Reorder"}
             </button>
           )}
         </div>

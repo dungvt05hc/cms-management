@@ -660,3 +660,21 @@ export async function confirmOrderReceived(token: string, orderId: string): Prom
   }
 }
 
+export async function reorderOrder(token: string, orderId: string): Promise<{ cartId: string }> {
+  const response = await fetch(`${API_BASE_URL}/me/orders/${orderId}/reorder`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({}),
+  });
+
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({ message: "Failed to reorder" }));
+    throw new Error(error.message || "Failed to reorder");
+  }
+
+  return response.json();
+}
+
