@@ -487,6 +487,195 @@ public sealed class OrdersEndpointTests : IDisposable
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
     }
 
+    /// <summary>
+    /// Test that POST /me/orders/{id}/reorder adds items from a Delivered order to cart.
+    /// </summary>
+    /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
+    [Fact]
+    public async Task Reorder_DeliveredOrder_AddsItemsToCart()
+    {
+        var token = await this.GetAuthTokenAsync();
+        this.client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+        using var scope = this.factory.Services.CreateScope();
+        var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+        var userId = Guid.Parse("00000000-0000-0000-0000-000000000001");
+
+        // Create a product
+        var product = new Product
+        {
+            Id = Guid.NewGuid(),
+            Name = "Test Product",
+            Slug = "test-product-reorder",
+            Description = "Test",
+            IsActive = true,
+            CreatedAt = DateTime.UtcNow,
+            UpdatedAt = DateTime.UtcNow,
+        };
+
+        var variant = new ProductVariant
+        {
+            Id = Guid.NewGuid(),
+            ProductId = product.Id,
+            Sku = "TEST-SKU-001",
+            VariantName = "Default",
+            Price = 100,
+            StockQuantity = 50,
+            CreatedAt = DateTime.UtcNow,
+            UpdatedAt = DateTime.UtcNow,
+        };
+
+        product.Variants.Add(variant);
+        dbContext.Products.Add(product);
+
+        // Create a delivered order with items
+        var order = new Order
+        {
+            Id = Guid.NewGuid(),
+            UserId = userId,
+            Status = OrderStatus.Delivered,
+            PaymentMethod = PaymentMethod.COD,
+            Subtotal = 200,
+            Total = 200,
+            ShippingFullName = "Test User",
+            ShippingPhone = "1234567890",
+            ShippingAddressLine = "123 Test St",
+            ShippingWard = "Ward 1",
+            ShippingDistrict = "District 1",
+            ShippingCity = "City",
+            ShippingMethodCode = "STANDARD",
+            ShippingCarrierCode = "GHTK",
+            CreatedAt = DateTime.UtcNow,
+            UpdatedAt = DateTime.UtcNow,
+        };
+
+        var orderItem = new OrderItem
+        {
+            Id = Guid.NewGuid(),
+            OrderId = order.Id,
+            ProductId = product.Id,
+            VariantId = variant.Id,
+            ProductName = product.Name,
+            VariantName = variant.VariantName,
+            Sku = variant.Sku,
+            UnitPrice = 100,
+            Quantity = 2,
+            TotalPrice = 200,
+            CreatedAt = DateTime.UtcNow,
+            UpdatedAt = DateTime.UtcNow,
+        };
+
+        order.Items.Add(orderItem);
+        dbContext.Orders.Add(order);
+        await dbContext.SaveChangesAsync();
+
+        // Reorder
+        var response = await this.client.PostAsJsonAsync($"/me/orders/{order.Id}/reorder", new { });
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        var result = await response.Content.ReadFromJsonAsync<Application.Features.Orders.Reorder.ReorderResult>();
+        Assert.NotNull(result);
+        Assert.NotEqual(Guid.Empty, result.CartId);
+
+        // Verify cart items were added
+        using var verifyScope = this.factory.Services.CreateScope();
+        var verifyContext = verifyScope.ServiceProvider.GetRequiredService<AppDbContext>();
+        var cart = await verifyContext.Carts
+            .Include(c => c.Items)
+            .FirstOrDefaultAsync(c => c.UserId == userId);
+
+        Assert.NotNull(cart);
+        Assert.Single(cart.Items);
+        var cartItem = cart.Items.First();
+        Assert.Equal(product.Id, cartItem.ProductId);
+        Assert.Equal(variant.Id, cartItem.VariantId);
+        Assert.Equal(2, cartItem.Quantity);
+    }
+
+    /// <summary>
+    /// Test that POST /me/orders/{id}/reorder fails for non-Delivered/Cancelled orders.
+    /// </summary>
+    /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
+    [Fact]
+    public async Task Reorder_ProcessingOrder_FailsWithBadRequest()
+    {
+        var token = await this.GetAuthTokenAsync();
+        this.client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+        using var scope = this.factory.Services.CreateScope();
+        var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+        var userId = Guid.Parse("00000000-0000-0000-0000-000000000001");
+
+        var order = new Order
+        {
+            Id = Guid.NewGuid(),
+            UserId = userId,
+            Status = OrderStatus.Processing,
+            PaymentMethod = PaymentMethod.COD,
+            Subtotal = 100,
+            Total = 100,
+            ShippingFullName = "Test User",
+            ShippingPhone = "1234567890",
+            ShippingAddressLine = "123 Test St",
+            ShippingWard = "Ward 1",
+            ShippingDistrict = "District 1",
+            ShippingCity = "City",
+            ShippingMethodCode = "STANDARD",
+            ShippingCarrierCode = "GHTK",
+            CreatedAt = DateTime.UtcNow,
+            UpdatedAt = DateTime.UtcNow,
+        };
+
+        dbContext.Orders.Add(order);
+        await dbContext.SaveChangesAsync();
+
+        var response = await this.client.PostAsJsonAsync($"/me/orders/{order.Id}/reorder", new { });
+
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+    }
+
+    /// <summary>
+    /// Test that POST /me/orders/{id}/reorder enforces ownership.
+    /// </summary>
+    /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
+    [Fact]
+    public async Task Reorder_OtherUserOrder_FailsWithBadRequest()
+    {
+        var token = await this.GetAuthTokenAsync();
+        this.client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+        using var scope = this.factory.Services.CreateScope();
+        var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+        var otherUserId = Guid.NewGuid();
+
+        var order = new Order
+        {
+            Id = Guid.NewGuid(),
+            UserId = otherUserId,
+            Status = OrderStatus.Delivered,
+            PaymentMethod = PaymentMethod.COD,
+            Subtotal = 100,
+            Total = 100,
+            ShippingFullName = "Other User",
+            ShippingPhone = "1234567890",
+            ShippingAddressLine = "123 Test St",
+            ShippingWard = "Ward 1",
+            ShippingDistrict = "District 1",
+            ShippingCity = "City",
+            ShippingMethodCode = "STANDARD",
+            ShippingCarrierCode = "GHTK",
+            CreatedAt = DateTime.UtcNow,
+            UpdatedAt = DateTime.UtcNow,
+        };
+
+        dbContext.Orders.Add(order);
+        await dbContext.SaveChangesAsync();
+
+        var response = await this.client.PostAsJsonAsync($"/me/orders/{order.Id}/reorder", new { });
+
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+    }
+
     /// <inheritdoc/>
     public void Dispose()
     {
