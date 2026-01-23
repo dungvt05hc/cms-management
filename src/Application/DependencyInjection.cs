@@ -21,6 +21,10 @@ using Application.Features.Categories.CreateCategory;
 using Application.Features.Categories.DeleteCategory;
 using Application.Features.Categories.GetCategoryTree;
 using Application.Features.Categories.UpdateCategory;
+using Application.Features.Orders.CancelOrder;
+using Application.Features.Orders.ConfirmOrder;
+using Application.Features.Orders.GetOrderById;
+using Application.Features.Orders.GetOrders;
 using Application.Features.Products.CreateProduct;
 using Application.Features.Products.DeleteProduct;
 using Application.Features.Products.GetProductById;
@@ -102,6 +106,12 @@ public static class DependencyInjection
 
         // Register payment handlers
         services.AddScoped<Application.Features.Payments.PayooCallback.PayooCallbackHandler>();
+
+        // Register order handlers
+        services.AddScoped<GetOrdersHandler>();
+        services.AddScoped<GetOrderByIdHandler>();
+        services.AddScoped<CancelOrderHandler>();
+        services.AddScoped<ConfirmOrderHandler>();
 
         // Register validators
         services.AddValidatorsFromAssemblyContaining<RegisterValidator>();
