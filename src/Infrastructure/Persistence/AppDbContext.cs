@@ -108,6 +108,11 @@ public class AppDbContext : DbContext, IAppDbContext
     public DbSet<ProductGroupAttribute> ProductGroupAttributes { get; set; } = null!;
 
     /// <summary>
+    /// Gets or sets the InvoiceProfiles DbSet.
+    /// </summary>
+    public DbSet<InvoiceProfile> InvoiceProfiles { get; set; } = null!;
+
+    /// <summary>
     /// Configures the database schema.
     /// </summary>
     /// <param name="modelBuilder">The model builder.</param>
@@ -368,6 +373,11 @@ public class AppDbContext : DbContext, IAppDbContext
             entity.Property(e => e.PaymentReference).HasMaxLength(256);
             entity.Property(e => e.CreatedAt).IsRequired();
             entity.Property(e => e.UpdatedAt).IsRequired();
+            entity.Property(e => e.InvoiceRequested).IsRequired();
+            entity.Property(e => e.InvoiceTaxCode).HasMaxLength(50);
+            entity.Property(e => e.InvoiceCompanyName).HasMaxLength(512);
+            entity.Property(e => e.InvoiceCompanyAddress).HasMaxLength(512);
+            entity.Property(e => e.InvoiceEmail).HasMaxLength(256);
 
             entity.HasOne(e => e.User)
                 .WithMany()
@@ -437,6 +447,24 @@ public class AppDbContext : DbContext, IAppDbContext
             entity.HasOne(e => e.ProductGroup)
                 .WithMany(e => e.Attributes)
                 .HasForeignKey(e => e.ProductGroupId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<InvoiceProfile>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.HasIndex(e => e.UserId);
+
+            entity.Property(e => e.TaxCode).IsRequired().HasMaxLength(50);
+            entity.Property(e => e.CompanyName).IsRequired().HasMaxLength(512);
+            entity.Property(e => e.CompanyAddress).IsRequired().HasMaxLength(512);
+            entity.Property(e => e.Email).IsRequired().HasMaxLength(256);
+            entity.Property(e => e.CreatedAt).IsRequired();
+            entity.Property(e => e.UpdatedAt).IsRequired();
+
+            entity.HasOne(e => e.User)
+                .WithMany()
+                .HasForeignKey(e => e.UserId)
                 .OnDelete(DeleteBehavior.Cascade);
         });
     }

@@ -98,6 +98,11 @@ public interface IAppDbContext
     DbSet<ProductGroupAttribute> ProductGroupAttributes { get; }
 
     /// <summary>
+    /// Gets the InvoiceProfiles DbSet.
+    /// </summary>
+    DbSet<InvoiceProfile> InvoiceProfiles { get; }
+
+    /// <summary>
     /// Saves all changes made in this context to the database.
     /// </summary>
     /// <param name="cancellationToken">A cancellation token.</param>
