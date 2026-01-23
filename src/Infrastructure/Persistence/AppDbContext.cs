@@ -98,6 +98,16 @@ public class AppDbContext : DbContext, IAppDbContext
     public DbSet<OrderItem> OrderItems { get; set; } = null!;
 
     /// <summary>
+    /// Gets or sets the ProductGroups DbSet.
+    /// </summary>
+    public DbSet<ProductGroup> ProductGroups { get; set; } = null!;
+
+    /// <summary>
+    /// Gets or sets the ProductGroupAttributes DbSet.
+    /// </summary>
+    public DbSet<ProductGroupAttribute> ProductGroupAttributes { get; set; } = null!;
+
+    /// <summary>
     /// Configures the database schema.
     /// </summary>
     /// <param name="modelBuilder">The model builder.</param>
@@ -395,6 +405,39 @@ public class AppDbContext : DbContext, IAppDbContext
                 .WithMany()
                 .HasForeignKey(e => e.VariantId)
                 .OnDelete(DeleteBehavior.Restrict);
+        });
+
+        modelBuilder.Entity<ProductGroup>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.HasIndex(e => e.CategoryId);
+
+            entity.Property(e => e.Name).IsRequired().HasMaxLength(256);
+            entity.Property(e => e.CreatedAt).IsRequired();
+            entity.Property(e => e.UpdatedAt).IsRequired();
+
+            entity.HasOne(e => e.Category)
+                .WithMany()
+                .HasForeignKey(e => e.CategoryId)
+                .OnDelete(DeleteBehavior.Restrict);
+        });
+
+        modelBuilder.Entity<ProductGroupAttribute>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.HasIndex(e => new { e.ProductGroupId, e.Key }).IsUnique();
+            entity.HasIndex(e => e.ProductGroupId);
+
+            entity.Property(e => e.Name).IsRequired().HasMaxLength(256);
+            entity.Property(e => e.Key).IsRequired().HasMaxLength(100);
+            entity.Property(e => e.Type).IsRequired().HasMaxLength(50);
+            entity.Property(e => e.CreatedAt).IsRequired();
+            entity.Property(e => e.UpdatedAt).IsRequired();
+
+            entity.HasOne(e => e.ProductGroup)
+                .WithMany(e => e.Attributes)
+                .HasForeignKey(e => e.ProductGroupId)
+                .OnDelete(DeleteBehavior.Cascade);
         });
     }
 }

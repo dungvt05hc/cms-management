@@ -88,6 +88,16 @@ public interface IAppDbContext
     DbSet<OrderItem> OrderItems { get; }
 
     /// <summary>
+    /// Gets the ProductGroups DbSet.
+    /// </summary>
+    DbSet<ProductGroup> ProductGroups { get; }
+
+    /// <summary>
+    /// Gets the ProductGroupAttributes DbSet.
+    /// </summary>
+    DbSet<ProductGroupAttribute> ProductGroupAttributes { get; }
+
+    /// <summary>
     /// Saves all changes made in this context to the database.
     /// </summary>
     /// <param name="cancellationToken">A cancellation token.</param>

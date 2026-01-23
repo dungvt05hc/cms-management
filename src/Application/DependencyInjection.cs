@@ -26,6 +26,10 @@ using Application.Features.Orders.ConfirmOrder;
 using Application.Features.Orders.GetOrderById;
 using Application.Features.Orders.GetOrders;
 using Application.Features.Orders.Reorder;
+using Application.Features.ProductGroups.CreateProductGroup;
+using Application.Features.ProductGroups.DeleteProductGroup;
+using Application.Features.ProductGroups.GetProductGroups;
+using Application.Features.ProductGroups.UpdateProductGroup;
 using Application.Features.Products.CreateProduct;
 using Application.Features.Products.DeleteProduct;
 using Application.Features.Products.GetProductById;
@@ -78,6 +82,12 @@ public static class DependencyInjection
         services.AddScoped<GetProductByIdHandler>();
         services.AddScoped<GetProductBySlugHandler>();
         services.AddScoped<GetProductSuggestionsHandler>();
+
+        // Register product group handlers
+        services.AddScoped<CreateProductGroupHandler>();
+        services.AddScoped<UpdateProductGroupHandler>();
+        services.AddScoped<DeleteProductGroupHandler>();
+        services.AddScoped<GetProductGroupsHandler>();
 
         // Register search handlers
         services.AddScoped<SearchSuggestHandler>();
