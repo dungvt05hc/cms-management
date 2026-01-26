@@ -1,0 +1,176 @@
+using Application.Abstractions;
+using Domain.Entities;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+
+namespace Api.Controllers;
+
+[ApiController]
+[Route("admin/customers")]
+[Authorize(Roles = "SuperAdmin,Admin,Staff")]
+public class AdminCustomersController : ControllerBase
+{
+    private readonly IAppDbContext db;
+
+    public AdminCustomersController(IAppDbContext db)
+    {
+        this.db = db;
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> GetCustomers()
+    {
+        var customers = await this.db.Users
+            .OrderByDescending(u => u.CreatedAt)
+            .Select(u => new
+            {
+                u.Id,
+                u.Email,
+                u.FullName,
+                u.Phone,
+                u.CreatedAt,
+                OrdersCount = this.db.Orders.Count(o => o.UserId == u.Id)
+            })
+            .ToListAsync();
+
+        return this.Ok(customers);
+    }
+
+    [HttpGet("{id}")]
+    public async Task<IActionResult> GetCustomer(Guid id)
+    {
+        var customer = await this.db.Users
+            .Where(u => u.Id == id)
+            .Select(u => new
+            {
+                u.Id,
+                u.Email,
+                u.FullName,
+                u.Phone,
+                u.CreatedAt,
+                Orders = this.db.Orders
+                    .Where(o => o.UserId == u.Id)
+                    .OrderByDescending(o => o.CreatedAt)
+                    .Select(o => new
+                    {
+                        o.Id,
+                        o.Status,
+                        o.Total,
+                        o.CreatedAt,
+                        ItemsCount = o.Items.Count
+                    })
+                    .ToList(),
+                Addresses = this.db.Addresses
+                    .Where(a => a.UserId == u.Id)
+                    .Select(a => new
+                    {
+                        a.Id,
+                        a.FullName,
+                        a.Phone,
+                        a.AddressLine,
+                        a.City,
+                        a.IsDefault
+                    })
+                    .ToList()
+            })
+            .FirstOrDefaultAsync();
+
+        if (customer == null)
+        {
+            return this.NotFound();
+        }
+
+        return this.Ok(customer);
+    }
+
+    [HttpPost("seed")]
+    [Authorize(Roles = "SuperAdmin")]
+    public async Task<IActionResult> SeedCustomers()
+    {
+        var existingCount = await this.db.Users.CountAsync();
+        if (existingCount > 0)
+        {
+            return this.BadRequest(new { message = "Customers already exist. Clear the database first." });
+        }
+
+        var customers = new List<User>
+        {
+            new()
+            {
+                Id = Guid.NewGuid(),
+                Email = "john.doe@example.com",
+                PasswordHash = BCrypt.Net.BCrypt.HashPassword("Customer123!"),
+                FullName = "John Doe",
+                Phone = "+1-555-0101",
+                CreatedAt = DateTime.UtcNow.AddDays(-30),
+                UpdatedAt = DateTime.UtcNow
+            },
+            new()
+            {
+                Id = Guid.NewGuid(),
+                Email = "jane.smith@example.com",
+                PasswordHash = BCrypt.Net.BCrypt.HashPassword("Customer123!"),
+                FullName = "Jane Smith",
+                Phone = "+1-555-0102",
+                CreatedAt = DateTime.UtcNow.AddDays(-25),
+                UpdatedAt = DateTime.UtcNow
+            },
+            new()
+            {
+                Id = Guid.NewGuid(),
+                Email = "bob.wilson@example.com",
+                PasswordHash = BCrypt.Net.BCrypt.HashPassword("Customer123!"),
+                FullName = "Bob Wilson",
+                Phone = "+1-555-0103",
+                CreatedAt = DateTime.UtcNow.AddDays(-20),
+                UpdatedAt = DateTime.UtcNow
+            },
+            new()
+            {
+                Id = Guid.NewGuid(),
+                Email = "alice.johnson@example.com",
+                PasswordHash = BCrypt.Net.BCrypt.HashPassword("Customer123!"),
+                FullName = "Alice Johnson",
+                Phone = "+1-555-0104",
+                CreatedAt = DateTime.UtcNow.AddDays(-15),
+                UpdatedAt = DateTime.UtcNow
+            },
+            new()
+            {
+                Id = Guid.NewGuid(),
+                Email = "charlie.brown@example.com",
+                PasswordHash = BCrypt.Net.BCrypt.HashPassword("Customer123!"),
+                FullName = "Charlie Brown",
+                Phone = "+1-555-0105",
+                CreatedAt = DateTime.UtcNow.AddDays(-10),
+                UpdatedAt = DateTime.UtcNow
+            }
+        };
+
+        this.db.Users.AddRange(customers);
+
+        // Add addresses for each customer
+        foreach (var customer in customers)
+        {
+            this.db.Addresses.Add(new Address
+            {
+                Id = Guid.NewGuid(),
+                UserId = customer.Id,
+                FullName = customer.FullName,
+                Phone = customer.Phone ?? string.Empty,
+                AddressLine = $"{new Random().Next(100, 999)} Main Street",
+                Ward = "Ward 1",
+                District = "District 1",
+                City = "New York",
+                IsDefault = true,
+                CreatedAt = DateTime.UtcNow,
+                UpdatedAt = DateTime.UtcNow
+            });
+        }
+
+        await this.db.SaveChangesAsync(CancellationToken.None);
+
+        return this.Ok(new { message = $"Created {customers.Count} sample customers with addresses" });
+    }
+}

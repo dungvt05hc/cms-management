@@ -1,0 +1,323 @@
+.container {
+  width: 100%;
+  max-width: var(--container-max);
+  margin: 0 auto;
+  padding: 0 var(--container-padding);
+}
+
+.section {
+  padding: 4rem 0;
+}
+
+.errorMessage {
+  padding: 1rem;
+  background-color: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: var(--radius-md);
+  color: #dc2626;
+  margin-bottom: 1.5rem;
+}
+
+/* Categories Grid */
+.categoriesGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+}
+
+/* Products Grid */
+.productsGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.5rem;
+}
+
+.emptyState {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 3rem;
+  background-color: var(--gray-50);
+  border-radius: var(--radius-lg);
+}
+
+.emptyState p {
+  color: var(--gray-500);
+  margin-bottom: 1rem;
+}
+
+.browseLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  background-color: var(--primary);
+  color: var(--white);
+  text-decoration: none;
+  border-radius: var(--radius-md);
+  font-weight: 500;
+  transition: background-color var(--transition-fast);
+}
+
+.browseLink:hover {
+  background-color: var(--primary-dark);
+  color: var(--white);
+}
+
+/* Promotional Banners */
+.promoBanners {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.5rem;
+}
+
+.promoBanner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 2.5rem;
+  border-radius: var(--radius-xl);
+  color: var(--white);
+  overflow: hidden;
+  position: relative;
+}
+
+.promoContent {
+  position: relative;
+  z-index: 1;
+  max-width: 60%;
+}
+
+.promoTag {
+  display: inline-block;
+  padding: 0.375rem 0.75rem;
+  background-color: rgba(255, 255, 255, 0.2);
+  border-radius: var(--radius-full);
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.75rem;
+  backdrop-filter: blur(10px);
+}
+
+.promoBanner h3 {
+  font-size: 1.75rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+  color: var(--white);
+}
+
+.promoBanner p {
+  font-size: 1rem;
+  opacity: 0.9;
+  margin-bottom: 1.25rem;
+}
+
+.promoButton {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.75rem 1.5rem;
+  background-color: var(--white);
+  color: var(--gray-900);
+  text-decoration: none;
+  border-radius: var(--radius-full);
+  font-size: 0.9375rem;
+  font-weight: 600;
+  transition: all var(--transition-fast);
+}
+
+.promoButton:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.promoImage {
+  font-size: 6rem;
+  opacity: 0.3;
+  position: absolute;
+  right: 2rem;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+/* Benefits Grid */
+.benefitsGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.5rem;
+}
+
+.benefitCard {
+  background-color: var(--white);
+  padding: 2rem;
+  border-radius: var(--radius-lg);
+  text-align: center;
+  transition: all var(--transition-normal);
+  border: 1px solid var(--gray-100);
+}
+
+.benefitCard:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-lg);
+}
+
+.benefitIcon {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+}
+
+.benefitCard h4 {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--gray-900);
+  margin-bottom: 0.5rem;
+}
+
+.benefitCard p {
+  font-size: 0.9375rem;
+  color: var(--gray-500);
+  line-height: 1.6;
+  margin: 0;
+}
+
+/* Newsletter Section */
+.newsletterSection {
+  padding: 4rem 0;
+  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+  color: var(--white);
+}
+
+.newsletterContent {
+  text-align: center;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.newsletterContent h2 {
+  font-size: 2rem;
+  font-weight: 700;
+  margin-bottom: 0.75rem;
+  color: var(--white);
+}
+
+.newsletterContent > p {
+  font-size: 1.125rem;
+  opacity: 0.9;
+  margin-bottom: 2rem;
+}
+
+.newsletterForm {
+  display: flex;
+  gap: 0;
+  max-width: 500px;
+  margin: 0 auto;
+}
+
+.newsletterInput {
+  flex: 1;
+  padding: 1rem 1.25rem;
+  font-size: 1rem;
+  border: none;
+  border-radius: var(--radius-full) 0 0 var(--radius-full);
+  background-color: var(--white);
+  color: var(--gray-900);
+}
+
+.newsletterInput::placeholder {
+  color: var(--gray-400);
+}
+
+.newsletterInput:focus {
+  outline: none;
+}
+
+.newsletterButton {
+  padding: 1rem 2rem;
+  background-color: var(--secondary);
+  color: var(--white);
+  border: none;
+  border-radius: 0 var(--radius-full) var(--radius-full) 0;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color var(--transition-fast);
+  white-space: nowrap;
+}
+
+.newsletterButton:hover {
+  background-color: var(--secondary-light);
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+  .categoriesGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .productsGrid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .benefitsGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .promoBanners {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .section {
+    padding: 3rem 0;
+  }
+
+  .categoriesGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .productsGrid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+  }
+
+  .benefitsGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .promoBanner {
+    padding: 2rem;
+  }
+
+  .promoBanner h3 {
+    font-size: 1.5rem;
+  }
+
+  .promoImage {
+    font-size: 4rem;
+    right: 1rem;
+  }
+
+  .newsletterForm {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .newsletterInput {
+    border-radius: var(--radius-full);
+  }
+
+  .newsletterButton {
+    border-radius: var(--radius-full);
+  }
+
+  .newsletterContent h2 {
+    font-size: 1.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .productsGrid {
+    grid-template-columns: 1fr;
+  }
+}

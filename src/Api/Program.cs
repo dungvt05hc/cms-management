@@ -9,6 +9,7 @@ using Application.Health;
 using Infrastructure;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -47,10 +48,57 @@ builder.Services.AddAuthorization(options =>
     options.AddPolicy("StaffOrAdmin", policy =>
         policy.RequireRole("SuperAdmin", "Admin", "Staff"));
 });
+
+// Add CORS policy for frontend
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowFrontend", policy =>
+    {
+        policy.WithOrigins("http://localhost:3000", "http://localhost:3001")
+              .AllowAnyMethod()
+              .AllowAnyHeader()
+              .AllowCredentials();
+    });
+});
+
 builder.Services.AddControllers();
 
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
-builder.Services.AddOpenApi();
+// Add Swagger/OpenAPI support
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen(options =>
+{
+    options.SwaggerDoc("v1", new OpenApiInfo
+    {
+        Title = "CMS Management API",
+        Version = "v1",
+        Description = "E-commerce Content Management System API",
+    });
+
+    // Configure JWT authentication in Swagger
+    options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    {
+        Description = "JWT Authorization header using the Bearer scheme. Enter 'Bearer' [space] and then your token in the text input below.",
+        Name = "Authorization",
+        In = ParameterLocation.Header,
+        Type = SecuritySchemeType.ApiKey,
+        Scheme = "Bearer",
+    });
+
+    options.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference
+                {
+                    Type = ReferenceType.SecurityScheme,
+                    Id = "Bearer",
+                },
+            },
+            Array.Empty<string>()
+        },
+    });
+});
 
 var app = builder.Build();
 
@@ -62,13 +110,27 @@ using (var scope = app.Services.CreateScope())
 
     var shippingBootstrapService = scope.ServiceProvider.GetRequiredService<Infrastructure.Services.ShippingBootstrapService>();
     await shippingBootstrapService.BootstrapAsync();
+
+    // Seed sample e-commerce data
+    var sampleDataSeeder = scope.ServiceProvider.GetRequiredService<Infrastructure.Services.SampleDataSeeder>();
+    await sampleDataSeeder.SeedAsync();
 }
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
-    app.MapOpenApi();
+    app.UseSwagger();
+    app.UseSwaggerUI(options =>
+    {
+        options.SwaggerEndpoint("/swagger/v1/swagger.json", "CMS Management API v1");
+    });
 }
+
+// Enable CORS
+app.UseCors("AllowFrontend");
+
+// Enable static files for serving uploaded images
+app.UseStaticFiles();
 
 app.UseAuthentication();
 app.UseAuthorization();

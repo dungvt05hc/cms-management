@@ -123,6 +123,11 @@ public class AppDbContext : DbContext, IAppDbContext
     public DbSet<DeviceToken> DeviceTokens { get; set; } = null!;
 
     /// <summary>
+    /// Gets or sets the Promotions DbSet.
+    /// </summary>
+    public DbSet<Promotion> Promotions { get; set; } = null!;
+
+    /// <summary>
     /// Configures the database schema.
     /// </summary>
     /// <param name="modelBuilder">The model builder.</param>
@@ -511,6 +516,26 @@ public class AppDbContext : DbContext, IAppDbContext
                 .WithMany()
                 .HasForeignKey(e => e.UserId)
                 .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<Promotion>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.HasIndex(e => e.Code).IsUnique();
+
+            entity.Property(e => e.Code).IsRequired().HasMaxLength(50);
+            entity.Property(e => e.Name).IsRequired().HasMaxLength(256);
+            entity.Property(e => e.Description).HasMaxLength(1000);
+            entity.Property(e => e.DiscountType).IsRequired().HasMaxLength(20);
+            entity.Property(e => e.DiscountValue).IsRequired().HasPrecision(18, 2);
+            entity.Property(e => e.MinOrderAmount).HasPrecision(18, 2);
+            entity.Property(e => e.MaxDiscountAmount).HasPrecision(18, 2);
+            entity.Property(e => e.StartDate).IsRequired();
+            entity.Property(e => e.EndDate).IsRequired();
+            entity.Property(e => e.UsedCount).IsRequired();
+            entity.Property(e => e.IsActive).IsRequired();
+            entity.Property(e => e.CreatedAt).IsRequired();
+            entity.Property(e => e.UpdatedAt).IsRequired();
         });
     }
 }

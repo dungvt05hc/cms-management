@@ -1,0 +1,223 @@
+// <copyright file="AdminOrdersController.cs" company="CMS Management">
+// Copyright (c) CMS Management. All rights reserved.
+// </copyright>
+
+using Application.Abstractions;
+using Domain.Entities;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+
+namespace Api.Controllers;
+
+/// <summary>
+/// Controller for managing orders in the admin panel.
+/// </summary>
+[ApiController]
+[Route("admin/orders")]
+[Authorize(Roles = "SuperAdmin,Admin,Staff")]
+public class AdminOrdersController : ControllerBase
+{
+    private readonly IAppDbContext db;
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="AdminOrdersController"/> class.
+    /// </summary>
+    /// <param name="db">The database context.</param>
+    public AdminOrdersController(IAppDbContext db)
+    {
+        this.db = db;
+    }
+
+    /// <summary>
+    /// Gets a paginated list of orders.
+    /// </summary>
+    /// <param name="page">The page number.</param>
+    /// <param name="pageSize">The page size.</param>
+    /// <returns>A list of orders.</returns>
+    [HttpGet]
+    public async Task<IActionResult> GetOrders(int page = 1, int pageSize = 20)
+    {
+        var query = this.db.Orders
+            .Include(o => o.User)
+            .Include(o => o.Items)
+            .OrderByDescending(o => o.CreatedAt);
+
+        var totalCount = await query.CountAsync();
+        var orders = await query
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .Select(o => new
+            {
+                o.Id,
+                o.Status,
+                o.Total,
+                o.CreatedAt,
+                CustomerName = o.User != null ? o.User.FullName : "Guest",
+                CustomerEmail = o.User != null ? o.User.Email : null,
+                ItemsCount = o.Items.Count,
+            })
+            .ToListAsync();
+
+        return this.Ok(new { items = orders, totalCount, page, pageSize });
+    }
+
+    /// <summary>
+    /// Gets order details by ID.
+    /// </summary>
+    /// <param name="id">The order ID.</param>
+    /// <returns>The order details.</returns>
+    [HttpGet("{id}")]
+    public async Task<IActionResult> GetOrder(Guid id)
+    {
+        var order = await this.db.Orders
+            .Include(o => o.User)
+            .Include(o => o.Items)
+                .ThenInclude(i => i.Product)
+            .Where(o => o.Id == id)
+            .FirstOrDefaultAsync();
+
+        if (order == null)
+        {
+            return this.NotFound();
+        }
+
+        return this.Ok(new
+        {
+            order.Id,
+            order.Status,
+            order.Total,
+            order.CreatedAt,
+            Customer = order.User != null ? new { order.User.FullName, order.User.Email, order.User.Phone } : null,
+            ShippingAddress = new
+            {
+                FullName = order.ShippingFullName,
+                Phone = order.ShippingPhone,
+                AddressLine = order.ShippingAddressLine,
+                City = order.ShippingCity,
+            },
+            Items = order.Items.Select(i => new
+            {
+                i.Id,
+                i.ProductName,
+                i.VariantName,
+                i.Quantity,
+                i.UnitPrice,
+                Total = i.TotalPrice,
+            }),
+        });
+    }
+
+    /// <summary>
+    /// Updates the status of an order.
+    /// </summary>
+    /// <param name="id">The order ID.</param>
+    /// <param name="request">The status update request.</param>
+    /// <returns>A success message.</returns>
+    [HttpPut("{id}/status")]
+    public async Task<IActionResult> UpdateOrderStatus(Guid id, [FromBody] UpdateOrderStatusRequest request)
+    {
+        var order = await this.db.Orders.FindAsync(id);
+        if (order == null)
+        {
+            return this.NotFound();
+        }
+
+        if (!Enum.TryParse<OrderStatus>(request.Status, true, out var newStatus))
+        {
+            return this.BadRequest(new { message = "Invalid status" });
+        }
+
+        order.Status = newStatus;
+        order.UpdatedAt = DateTime.UtcNow;
+        await this.db.SaveChangesAsync(CancellationToken.None);
+
+        return this.Ok(new { message = "Order status updated", status = order.Status.ToString() });
+    }
+
+    /// <summary>
+    /// Seeds sample orders for testing.
+    /// </summary>
+    /// <returns>A success message.</returns>
+    [HttpPost("seed")]
+    [Authorize(Roles = "SuperAdmin")]
+    public async Task<IActionResult> SeedOrders()
+    {
+        var customers = await this.db.Users.ToListAsync();
+        if (!customers.Any())
+        {
+            return this.BadRequest(new { message = "No customers found. Seed customers first." });
+        }
+
+        var products = await this.db.Products.ToListAsync();
+        if (!products.Any())
+        {
+            return this.BadRequest(new { message = "No products found. Seed products first." });
+        }
+
+        var random = new Random();
+        var ordersCreated = 0;
+
+        foreach (var customer in customers.Take(3))
+        {
+            // Create 1-3 orders per customer
+            var orderCount = random.Next(1, 4);
+            for (var i = 0; i < orderCount; i++)
+            {
+                var orderProducts = products.OrderBy(_ => random.Next()).Take(random.Next(1, 4)).ToList();
+                var orderId = Guid.NewGuid();
+
+                var orderItems = orderProducts.Select(p => new OrderItem
+                {
+                    Id = Guid.NewGuid(),
+                    OrderId = orderId,
+                    ProductId = p.Id,
+                    ProductName = p.Name,
+                    Sku = p.Sku ?? string.Empty,
+                    Quantity = random.Next(1, 3),
+                    UnitPrice = p.Price,
+                    TotalPrice = random.Next(1, 3) * p.Price,
+                    CreatedAt = DateTime.UtcNow,
+                    UpdatedAt = DateTime.UtcNow,
+                }).ToList();
+
+                var order = new Order
+                {
+                    Id = orderId,
+                    UserId = customer.Id,
+                    Status = (OrderStatus)random.Next(0, 4),
+                    Subtotal = orderItems.Sum(oi => oi.TotalPrice),
+                    Total = orderItems.Sum(oi => oi.TotalPrice),
+                    ShippingFullName = customer.FullName ?? "Customer",
+                    ShippingPhone = customer.Phone ?? string.Empty,
+                    ShippingAddressLine = "123 Sample Street",
+                    ShippingCity = "Ho Chi Minh City",
+                    ShippingDistrict = "District 1",
+                    ShippingWard = "Ben Nghe",
+                    PaymentMethod = PaymentMethod.Cod,
+                    Items = orderItems,
+                    CreatedAt = DateTime.UtcNow.AddDays(-random.Next(1, 30)),
+                    UpdatedAt = DateTime.UtcNow,
+                };
+
+                this.db.Orders.Add(order);
+                ordersCreated++;
+            }
+        }
+
+        await this.db.SaveChangesAsync(CancellationToken.None);
+
+        return this.Ok(new { message = $"Created {ordersCreated} sample orders" });
+    }
+}
+
+/// <summary>
+/// Request model for updating order status.
+/// </summary>
+public class UpdateOrderStatusRequest
+{
+    /// <summary>
+    /// Gets or sets the new status.
+    /// </summary>
+    public string Status { get; set; } = string.Empty;
+}
