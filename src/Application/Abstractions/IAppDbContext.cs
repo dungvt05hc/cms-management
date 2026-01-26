@@ -113,6 +113,11 @@ public interface IAppDbContext
     DbSet<DeviceToken> DeviceTokens { get; }
 
     /// <summary>
+    /// Gets the Promotions DbSet.
+    /// </summary>
+    DbSet<Promotion> Promotions { get; }
+
+    /// <summary>
     /// Saves all changes made in this context to the database.
     /// </summary>
     /// <param name="cancellationToken">A cancellation token.</param>

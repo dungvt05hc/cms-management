@@ -1,0 +1,333 @@
+using System.Text.Json;
+using System.Text.RegularExpressions;
+using Application.Abstractions;
+using Domain.Entities;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+
+namespace Api.Controllers;
+
+[ApiController]
+[Route("admin/scraper")]
+[Authorize(Roles = "SuperAdmin,Admin")]
+public class AdminScraperController : ControllerBase
+{
+    private readonly IAppDbContext _db;
+    private readonly HttpClient _httpClient;
+    private readonly ILogger<AdminScraperController> _logger;
+
+    public AdminScraperController(IAppDbContext db, IHttpClientFactory httpClientFactory, ILogger<AdminScraperController> logger)
+    {
+        _db = db;
+        _httpClient = httpClientFactory.CreateClient();
+        _httpClient.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36");
+        _logger = logger;
+    }
+
+    [HttpPost("scrape")]
+    public async Task<IActionResult> ScrapeUrl([FromBody] ScrapeRequest request)
+    {
+        if (string.IsNullOrWhiteSpace(request.Url))
+            return BadRequest(new { message = "URL is required" });
+
+        try
+        {
+            var html = await _httpClient.GetStringAsync(request.Url);
+            var products = ExtractProductsFromHtml(html, request.Url);
+
+            return Ok(new
+            {
+                url = request.Url,
+                productsFound = products.Count,
+                products
+            });
+        }
+        catch (HttpRequestException ex)
+        {
+            _logger.LogError(ex, "Failed to fetch URL: {Url}", request.Url);
+            return BadRequest(new { message = $"Failed to fetch URL: {ex.Message}" });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error scraping URL: {Url}", request.Url);
+            return BadRequest(new { message = $"Error scraping: {ex.Message}" });
+        }
+    }
+
+    [HttpPost("import")]
+    public async Task<IActionResult> ImportScrapedProducts([FromBody] ImportScrapedRequest request)
+    {
+        if (request.Products == null || !request.Products.Any())
+            return BadRequest(new { message = "No products to import" });
+
+        var imported = 0;
+        var errors = new List<string>();
+
+        foreach (var product in request.Products)
+        {
+            try
+            {
+                var slug = GenerateSlug(product.Name);
+                
+                // Check for duplicate slug
+                if (await _db.Products.AnyAsync(p => p.Slug == slug))
+                {
+                    slug = $"{slug}-{Guid.NewGuid().ToString()[..8]}";
+                }
+
+                var newProduct = new Product
+                {
+                    Id = Guid.NewGuid(),
+                    Name = product.Name,
+                    Slug = slug,
+                    Description = product.Description,
+                    CategoryId = string.IsNullOrEmpty(request.CategoryId) ? null : Guid.Parse(request.CategoryId),
+                    IsActive = true,
+                    IsFeatured = false,
+                    Images = product.Images != null && product.Images.Any() 
+                        ? JsonSerializer.Serialize(product.Images) 
+                        : null,
+                    CreatedAt = DateTime.UtcNow,
+                    UpdatedAt = DateTime.UtcNow
+                };
+
+                _db.Products.Add(newProduct);
+
+                // Create default variant
+                var variant = new ProductVariant
+                {
+                    Id = Guid.NewGuid(),
+                    ProductId = newProduct.Id,
+                    Sku = $"IMP-{Guid.NewGuid().ToString()[..8].ToUpper()}",
+                    VariantName = "Default",
+                    Price = product.Price,
+                    StockQuantity = 100,
+                    CreatedAt = DateTime.UtcNow,
+                    UpdatedAt = DateTime.UtcNow
+                };
+
+                _db.ProductVariants.Add(variant);
+                imported++;
+            }
+            catch (Exception ex)
+            {
+                errors.Add($"Failed to import '{product.Name}': {ex.Message}");
+            }
+        }
+
+        await _db.SaveChangesAsync(CancellationToken.None);
+
+        return Ok(new
+        {
+            message = $"Imported {imported} products",
+            imported,
+            errors
+        });
+    }
+
+    private List<ScrapedProduct> ExtractProductsFromHtml(string html, string sourceUrl)
+    {
+        var products = new List<ScrapedProduct>();
+
+        // Generic product extraction patterns
+        // Look for common e-commerce patterns
+
+        // Pattern 1: JSON-LD structured data
+        var jsonLdPattern = new Regex(@"<script[^>]*type=""application/ld\+json""[^>]*>(.*?)</script>", RegexOptions.Singleline | RegexOptions.IgnoreCase);
+        var jsonLdMatches = jsonLdPattern.Matches(html);
+
+        foreach (Match match in jsonLdMatches)
+        {
+            try
+            {
+                var jsonContent = match.Groups[1].Value.Trim();
+                using var doc = JsonDocument.Parse(jsonContent);
+                var root = doc.RootElement;
+
+                if (root.TryGetProperty("@type", out var typeEl))
+                {
+                    var type = typeEl.GetString();
+                    if (type == "Product" || type == "ProductGroup")
+                    {
+                        var product = ExtractFromJsonLd(root);
+                        if (product != null)
+                            products.Add(product);
+                    }
+                }
+                else if (root.ValueKind == JsonValueKind.Array)
+                {
+                    foreach (var item in root.EnumerateArray())
+                    {
+                        if (item.TryGetProperty("@type", out var itemType) && 
+                            (itemType.GetString() == "Product" || itemType.GetString() == "ProductGroup"))
+                        {
+                            var product = ExtractFromJsonLd(item);
+                            if (product != null)
+                                products.Add(product);
+                        }
+                    }
+                }
+            }
+            catch
+            {
+                // Skip invalid JSON
+            }
+        }
+
+        // Pattern 2: Open Graph meta tags
+        if (!products.Any())
+        {
+            var ogProduct = ExtractFromOpenGraph(html);
+            if (ogProduct != null)
+                products.Add(ogProduct);
+        }
+
+        // Pattern 3: Generic HTML patterns
+        if (!products.Any())
+        {
+            var genericProducts = ExtractFromGenericHtml(html);
+            products.AddRange(genericProducts);
+        }
+
+        return products;
+    }
+
+    private ScrapedProduct? ExtractFromJsonLd(JsonElement element)
+    {
+        var name = element.TryGetProperty("name", out var nameEl) ? nameEl.GetString() : null;
+        if (string.IsNullOrEmpty(name)) return null;
+
+        var description = element.TryGetProperty("description", out var descEl) ? descEl.GetString() : null;
+        
+        decimal price = 0;
+        if (element.TryGetProperty("offers", out var offersEl))
+        {
+            if (offersEl.ValueKind == JsonValueKind.Object)
+            {
+                if (offersEl.TryGetProperty("price", out var priceEl))
+                {
+                    if (priceEl.ValueKind == JsonValueKind.Number)
+                        price = priceEl.GetDecimal();
+                    else if (priceEl.ValueKind == JsonValueKind.String)
+                        decimal.TryParse(priceEl.GetString(), out price);
+                }
+            }
+            else if (offersEl.ValueKind == JsonValueKind.Array)
+            {
+                foreach (var offer in offersEl.EnumerateArray())
+                {
+                    if (offer.TryGetProperty("price", out var offerPrice))
+                    {
+                        if (offerPrice.ValueKind == JsonValueKind.Number)
+                            price = offerPrice.GetDecimal();
+                        else if (offerPrice.ValueKind == JsonValueKind.String)
+                            decimal.TryParse(offerPrice.GetString(), out price);
+                        break;
+                    }
+                }
+            }
+        }
+
+        var images = new List<string>();
+        if (element.TryGetProperty("image", out var imageEl))
+        {
+            if (imageEl.ValueKind == JsonValueKind.String)
+                images.Add(imageEl.GetString()!);
+            else if (imageEl.ValueKind == JsonValueKind.Array)
+            {
+                foreach (var img in imageEl.EnumerateArray())
+                {
+                    if (img.ValueKind == JsonValueKind.String)
+                        images.Add(img.GetString()!);
+                    else if (img.TryGetProperty("url", out var urlEl))
+                        images.Add(urlEl.GetString()!);
+                }
+            }
+        }
+
+        return new ScrapedProduct
+        {
+            Name = name,
+            Description = description,
+            Price = price,
+            Images = images
+        };
+    }
+
+    private ScrapedProduct? ExtractFromOpenGraph(string html)
+    {
+        var titleMatch = Regex.Match(html, @"<meta[^>]*property=""og:title""[^>]*content=""([^""]*)""", RegexOptions.IgnoreCase);
+        var descMatch = Regex.Match(html, @"<meta[^>]*property=""og:description""[^>]*content=""([^""]*)""", RegexOptions.IgnoreCase);
+        var imageMatch = Regex.Match(html, @"<meta[^>]*property=""og:image""[^>]*content=""([^""]*)""", RegexOptions.IgnoreCase);
+        var priceMatch = Regex.Match(html, @"<meta[^>]*property=""product:price:amount""[^>]*content=""([^""]*)""", RegexOptions.IgnoreCase);
+
+        if (!titleMatch.Success) return null;
+
+        decimal.TryParse(priceMatch.Success ? priceMatch.Groups[1].Value : "0", out var price);
+
+        return new ScrapedProduct
+        {
+            Name = System.Net.WebUtility.HtmlDecode(titleMatch.Groups[1].Value),
+            Description = descMatch.Success ? System.Net.WebUtility.HtmlDecode(descMatch.Groups[1].Value) : null,
+            Price = price,
+            Images = imageMatch.Success ? new List<string> { imageMatch.Groups[1].Value } : new List<string>()
+        };
+    }
+
+    private List<ScrapedProduct> ExtractFromGenericHtml(string html)
+    {
+        var products = new List<ScrapedProduct>();
+
+        // Look for product cards with common class names
+        var productPatterns = new[]
+        {
+            @"class=""[^""]*product[^""]*""[^>]*>.*?<h[23][^>]*>([^<]+)</h[23]>.*?(?:\$|USD|EUR|£)(\d+(?:\.\d{2})?)",
+            @"data-product-name=""([^""]+)"".*?data-product-price=""(\d+(?:\.\d{2})?)""",
+            @"itemprop=""name""[^>]*>([^<]+)<.*?itemprop=""price""[^>]*content=""(\d+(?:\.\d{2})?)""",
+        };
+
+        foreach (var pattern in productPatterns)
+        {
+            var matches = Regex.Matches(html, pattern, RegexOptions.Singleline | RegexOptions.IgnoreCase);
+            foreach (Match match in matches)
+            {
+                if (decimal.TryParse(match.Groups[2].Value, out var price))
+                {
+                    products.Add(new ScrapedProduct
+                    {
+                        Name = System.Net.WebUtility.HtmlDecode(match.Groups[1].Value.Trim()),
+                        Price = price,
+                        Images = new List<string>()
+                    });
+                }
+            }
+        }
+
+        return products.Take(20).ToList(); // Limit to 20 products
+    }
+
+    private string GenerateSlug(string name)
+    {
+        return Regex.Replace(name.ToLowerInvariant(), @"[^a-z0-9]+", "-").Trim('-');
+    }
+
+    public class ScrapeRequest
+    {
+        public string Url { get; set; } = string.Empty;
+    }
+
+    public class ImportScrapedRequest
+    {
+        public string? CategoryId { get; set; }
+        public List<ScrapedProduct> Products { get; set; } = new();
+    }
+
+    public class ScrapedProduct
+    {
+        public string Name { get; set; } = string.Empty;
+        public string? Description { get; set; }
+        public decimal Price { get; set; }
+        public List<string>? Images { get; set; }
+    }
+}

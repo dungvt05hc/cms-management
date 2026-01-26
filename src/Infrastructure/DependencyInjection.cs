@@ -57,6 +57,7 @@ public static class DependencyInjection
         // Bootstrap services
         services.AddScoped<SuperAdminBootstrapService>();
         services.AddScoped<ShippingBootstrapService>();
+        services.AddScoped<SampleDataSeeder>();
 
         return services;
     }

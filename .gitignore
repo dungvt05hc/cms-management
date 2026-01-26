@@ -47,3 +47,10 @@ TestResults/
 ## Temporary files
 *.tmp
 *.temp
+
+node_modules/
+**/node_modules/
+.next/
+dist/
+build/
+
